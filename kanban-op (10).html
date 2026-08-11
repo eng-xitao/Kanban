@@ -1498,9 +1498,23 @@
   });
 
   function closeOpModal(){ opOverlay.classList.remove('open'); editingId = null; }
-  $('#opModalClose').addEventListener('click', closeOpModal);
-  $('#opCancelBtn').addEventListener('click', closeOpModal);
-  opOverlay.addEventListener('click', e=>{ if(e.target === opOverlay) closeOpModal(); });
+
+  async function requestCloseOpModal(){
+    const hasContent = $('#fCodigo').value.trim() || $('#fCliente').value.trim() || $('#fObra').value.trim() || $('#fEtapa').value.trim();
+    if(hasContent){
+      const ok = await showConfirm(
+        'Você tem informações preenchidas neste formulário. Deseja mesmo sair sem salvar?',
+        {title:'Descartar alterações?', okLabel:'Sair sem salvar'}
+      );
+      if(!ok) return;
+    }
+    closeOpModal();
+  }
+
+  $('#opModalClose').addEventListener('click', requestCloseOpModal);
+  $('#opCancelBtn').addEventListener('click', requestCloseOpModal);
+  // clicar fora do formulário (na área escura) NÃO fecha mais — evita perder
+  // dados preenchidos por acidente. Só fecha pelos botões "Cancelar"/"X"/"Salvar".
 
   $('#btnNewOp').addEventListener('click', openNewOpModal);
 
