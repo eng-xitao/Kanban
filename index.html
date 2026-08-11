@@ -767,19 +767,23 @@
       loaded.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
       ops = loaded;
 
-      if(ops.length === 0){
-        let alreadyInitialized = false;
-        try{
-          await window.storage.get('meta:initialized', false);
-          alreadyInitialized = true; // a chave existe -> já rodou antes, não é primeira vez
-        }catch(e){
-          alreadyInitialized = false; // chave não existe -> pode ser primeira vez mesmo
-        }
-        if(!alreadyInitialized){
+      let alreadyInitialized = false;
+      try{
+        await window.storage.get('meta:initialized', false);
+        alreadyInitialized = true; // a chave existe -> já rodou antes, não é primeira vez
+      }catch(e){
+        alreadyInitialized = false; // chave não existe -> pode ser primeira vez mesmo
+      }
+
+      if(!alreadyInitialized){
+        if(ops.length === 0){
+          // não há dados e nunca foi inicializado -> primeira vez de verdade, semeia exemplo
           ops = seedData();
           for(const op of ops){ await saveOp(op, true); }
-          try{ await window.storage.set('meta:initialized', '1', false); }catch(e){}
         }
+        // marca como inicializado de qualquer forma (já tinha dados ou acabou de semear).
+        // Assim, um quadro esvaziado de propósito depois disso NUNCA mais volta sozinho.
+        try{ await window.storage.set('meta:initialized', '1', false); }catch(e){}
       }
     }catch(e){
       console.error('storage load failed', e);
