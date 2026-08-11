@@ -633,6 +633,12 @@
 (function(){
   "use strict";
 
+  // ---------------- Detecção de ambiente ----------------
+  // Se window.storage já existir, estamos dentro do Claude (onde window.print()
+  // é bloqueado pelo sandbox). Se não existir, é uma página independente
+  // (ex: GitHub Pages), onde a impressão nativa do navegador funciona normal.
+  const RUNNING_STANDALONE = !window.storage;
+
   // ---------------- Storage shim (compatibilidade fora do Claude) ----------------
   // window.storage é uma API exclusiva do ambiente de artefatos do Claude.
   // Quando este arquivo roda sozinho (ex: GitHub Pages), ela não existe —
@@ -728,6 +734,24 @@
     toast._h = setTimeout(()=>t.classList.remove('show'), 2200);
   }
 
+  // ================================================================
+  // CAMADA DE DADOS — REGRAS DE PROTEÇÃO (não alterar sem necessidade)
+  // ================================================================
+  // 1. Toda OP é salva individualmente sob a chave 'op:<id>'. Esse prefixo
+  //    NUNCA deve mudar — mudar o prefixo faz o sistema "esquecer" tudo que
+  //    já foi salvo com o prefixo antigo (os dados continuariam existindo no
+  //    armazenamento, só não seriam mais encontrados).
+  // 2. O código nunca deve apagar em massa (não existe e não deve existir
+  //    um "storage.clear()" ou remoção por prefixo aqui).
+  // 3. Ajustes de interface/funcionalidade (cores, botões, telas novas) não
+  //    tocam nessa camada — os dados sobrevivem normalmente a atualizações
+  //    de código, pois vivem à parte, fora do arquivo HTML/JS.
+  // 4. Dados de exemplo (seedData) só são gravados na PRIMEIRÍSSIMA vez que
+  //    o sistema roda (controlado pela chave 'meta:initialized'), nunca mais
+  //    depois disso — mesmo que o usuário apague todas as OPs de propósito,
+  //    elas não devem "voltar" sozinhas.
+  // ================================================================
+
   // ---------------- Storage ----------------
   async function loadAll(){
     try{
@@ -740,16 +764,28 @@
           if(r && r.value){ loaded.push(JSON.parse(r.value)); }
         }catch(e){ /* skip missing */ }
       }
-      if(loaded.length){
-        loaded.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
-        ops = loaded;
-      } else {
-        ops = seedData();
-        for(const op of ops){ await saveOp(op, true); }
+      loaded.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+      ops = loaded;
+
+      if(ops.length === 0){
+        let alreadyInitialized = false;
+        try{
+          await window.storage.get('meta:initialized', false);
+          alreadyInitialized = true; // a chave existe -> já rodou antes, não é primeira vez
+        }catch(e){
+          alreadyInitialized = false; // chave não existe -> pode ser primeira vez mesmo
+        }
+        if(!alreadyInitialized){
+          ops = seedData();
+          for(const op of ops){ await saveOp(op, true); }
+          try{ await window.storage.set('meta:initialized', '1', false); }catch(e){}
+        }
       }
     }catch(e){
       console.error('storage load failed', e);
-      ops = seedData();
+      // em caso de falha de leitura, não sobrescreve com dados de exemplo —
+      // mostra vazio para não arriscar mascarar/perder dados reais
+      ops = [];
     }
     render();
   }
@@ -1681,6 +1717,16 @@ ${bodyHtml}
   function printActiveView(){
     const activeBtn = $('.tab-btn.active');
     const view = activeBtn ? activeBtn.dataset.view : 'kanban';
+
+    if(RUNNING_STANDALONE){
+      // página independente (ex: GitHub Pages): impressão nativa do navegador,
+      // sem mexer na visualização da tela — o próprio diálogo de impressão do
+      // navegador já tem opção de "ajustar à página" se precisar.
+      window.print();
+      return;
+    }
+
+    // dentro do Claude: window.print() é bloqueado pelo sandbox — abre em aba nova
     if(view === 'gantt') fitGanttForPrint();
     const headerHtml = cloneForPrint('header');
     const panelSelector = view === 'gantt' ? '#viewGantt' : (view === 'boletim' ? '#viewBoletim' : '#viewKanban');
@@ -1693,6 +1739,16 @@ ${bodyHtml}
     switchTab('gantt');
     ganttPrintGroup = group;
     renderGantt();
+
+    if(RUNNING_STANDALONE){
+      window.print();
+      if(group !== 'none'){
+        ganttPrintGroup = 'none';
+        renderGantt();
+      }
+      return;
+    }
+
     fitGanttForPrint();
     const headerHtml = cloneForPrint('header');
     const panelHtml = cloneForPrint('#viewGantt');
