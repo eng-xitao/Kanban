@@ -633,6 +633,12 @@
 (function(){
   "use strict";
 
+  // ---------------- Detecção de ambiente ----------------
+  // Se window.storage já existir, estamos dentro do Claude (onde window.print()
+  // é bloqueado pelo sandbox). Se não existir, é uma página independente
+  // (ex: GitHub Pages), onde a impressão nativa do navegador funciona normal.
+  const RUNNING_STANDALONE = !window.storage;
+
   // ---------------- Storage shim (compatibilidade fora do Claude) ----------------
   // window.storage é uma API exclusiva do ambiente de artefatos do Claude.
   // Quando este arquivo roda sozinho (ex: GitHub Pages), ela não existe —
@@ -1618,6 +1624,16 @@
     if(grid){ grid.style.transform = ''; grid.style.width = ''; }
   }
 
+  // rede de segurança para quem der Ctrl+P manualmente em vez de usar os botões
+  window.addEventListener('beforeprint', fitGanttForPrint);
+  window.addEventListener('afterprint', ()=>{
+    resetGanttPrintScale();
+    if(ganttPrintGroup !== 'none'){
+      ganttPrintGroup = 'none';
+      renderGantt();
+    }
+  });
+
   // O artefato roda dentro de um iframe restrito onde window.print() é bloqueado
   // (mesmo motivo que bloqueava o confirm() nativo). Solução: abrir o conteúdo
   // pronto para impressão numa aba nova, que não sofre essa restrição.
@@ -1682,6 +1698,15 @@ ${bodyHtml}
     const activeBtn = $('.tab-btn.active');
     const view = activeBtn ? activeBtn.dataset.view : 'kanban';
     if(view === 'gantt') fitGanttForPrint();
+
+    if(RUNNING_STANDALONE){
+      // página independente (ex: GitHub Pages): impressão nativa funciona normal
+      window.print();
+      if(view === 'gantt') resetGanttPrintScale();
+      return;
+    }
+
+    // dentro do Claude: window.print() é bloqueado pelo sandbox — abre em aba nova
     const headerHtml = cloneForPrint('header');
     const panelSelector = view === 'gantt' ? '#viewGantt' : (view === 'boletim' ? '#viewBoletim' : '#viewKanban');
     const panelHtml = cloneForPrint(panelSelector);
@@ -1694,6 +1719,17 @@ ${bodyHtml}
     ganttPrintGroup = group;
     renderGantt();
     fitGanttForPrint();
+
+    if(RUNNING_STANDALONE){
+      window.print();
+      resetGanttPrintScale();
+      if(group !== 'none'){
+        ganttPrintGroup = 'none';
+        renderGantt();
+      }
+      return;
+    }
+
     const headerHtml = cloneForPrint('header');
     const panelHtml = cloneForPrint('#viewGantt');
     resetGanttPrintScale();
