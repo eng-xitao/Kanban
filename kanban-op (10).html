@@ -547,6 +547,7 @@
     font-size:12.5px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;
   }
   .colab-apont-add-btn:hover{background:#ffbe57;}
+  .colab-apont-user{font-size:12px; color:var(--text-dim); align-self:center;}
   .colab-item-complete-tag{font-size:11px; font-weight:700; color:var(--ok);}
   .colab-empty{text-align:center; padding:60px 20px; color:var(--text-faint); font-size:13px;}
 
@@ -592,6 +593,30 @@
   .prod-apont-table .pa-qtde{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--ok); white-space:nowrap;}
   .prod-apont-wrap{max-height:640px; overflow-y:auto; border:1px solid var(--line); border-radius:9px; background:var(--panel);}
   @media (max-width:900px){ .prod-layout{grid-template-columns:1fr;} }
+
+  /* ---------- Cadastros (produtos / acessos) ---------- */
+  .cad-layout{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px; padding:20px 24px 60px; align-items:start;
+  }
+  @media (max-width:900px){ .cad-layout{grid-template-columns:1fr;} }
+  .cad-add-row{display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap;}
+  .cad-add-row input, .cad-add-row select{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:9px 11px;
+    color:var(--text); font-size:13px; font-family:'Inter',sans-serif;
+  }
+  .cad-add-row input[type="text"]{flex:1; min-width:120px;}
+  .cad-add-row-acesso input[type="text"]:first-child{flex:1.4;}
+  .cad-add-row-acesso input[type="text"]:last-of-type{flex:0.7; min-width:90px;}
+  .cad-list{
+    background:var(--panel); border:1px solid var(--line); border-radius:9px; max-height:520px; overflow-y:auto;
+  }
+  .cad-row{
+    padding:10px 14px; border-bottom:1px solid var(--line-soft); display:flex; align-items:center;
+    justify-content:space-between; gap:10px; font-size:13px;
+  }
+  .cad-row:last-child{border-bottom:none;}
+  .cad-rm{background:none; border:none; color:var(--danger); cursor:pointer; font-size:18px; padding:0 4px; flex-shrink:0;}
+  .cad-rm:hover{opacity:0.7;}
 </style>
 </head>
 <body>
@@ -602,27 +627,15 @@
     <div class="login-mark"></div>
     <h1>Kanban de OPs</h1>
     <p class="login-sub">Belmonte Indústria — Ferro &amp; Alumínio</p>
-    <div class="login-roles" id="loginRoles">
-      <button class="role-btn" data-role="admin">
-        <span class="role-ic">👤</span>
-        <span>Administrador</span>
-      </button>
-      <button class="role-btn" data-role="colaborador">
-        <span class="role-ic">🛠️</span>
-        <span>Colaborador</span>
-      </button>
-    </div>
-    <div class="login-pin-area" id="loginPinArea" style="display:none;">
-      <label id="loginRoleLabel" class="login-pin-label"></label>
-      <input type="password" id="loginPinInput" class="login-pin-input" placeholder="Digite o PIN" inputmode="numeric" autocomplete="off">
+    <div class="login-pin-area" id="loginPinArea">
+      <label class="login-pin-label">Digite seu PIN de acesso</label>
+      <input type="password" id="loginPinInput" class="login-pin-input" placeholder="PIN" inputmode="numeric" autocomplete="off">
       <p class="login-error" id="loginError"></p>
-      <div class="login-actions">
-        <button class="btn" id="loginBackBtn">← Voltar</button>
-        <button class="btn btn-primary" id="loginSubmitBtn">Entrar</button>
-      </div>
+      <button class="btn btn-primary" id="loginSubmitBtn" style="width:100%; justify-content:center;">Entrar</button>
     </div>
   </div>
 </div>
+<datalist id="produtosDatalist"></datalist>
 
 <!-- ============ MODO COLABORADOR ============ -->
 <div id="colabApp" style="display:none;">
@@ -688,6 +701,7 @@
   <button class="tab-btn" data-view="gantt">Cronograma</button>
   <button class="tab-btn" data-view="boletim">Boletim de Entrega</button>
   <button class="tab-btn" data-view="producao">Acompanhamento</button>
+  <button class="tab-btn" data-view="cadastros">Cadastros</button>
 </nav>
 
 <section class="view-panel" id="viewKanban">
@@ -768,6 +782,34 @@
     <div class="prod-col">
       <h3 class="prod-col-title">Todos os apontamentos</h3>
       <div id="prodApontList"></div>
+    </div>
+  </div>
+</section>
+
+<section class="view-panel" id="viewCadastros" style="display:none;">
+  <div class="cad-layout">
+    <div class="cad-col">
+      <h3 class="prod-col-title">Produtos (tipos de item)</h3>
+      <p class="hint">Esses nomes aparecem como sugestão ao preencher o campo "Tipo" dos itens de uma OP.</p>
+      <div class="cad-add-row">
+        <input type="text" id="produtoNovoInput" placeholder="Nome do produto (ex: GUARDA CORPO)">
+        <button class="btn btn-primary" id="btnAddProduto">+ Adicionar</button>
+      </div>
+      <div id="produtosListWrap" class="cad-list"></div>
+    </div>
+    <div class="cad-col">
+      <h3 class="prod-col-title">Acessos (login do sistema)</h3>
+      <p class="hint">Cada pessoa entra com o próprio PIN — o sistema já sabe automaticamente se é Administrador ou Colaborador, e (no modo Colaborador) já preenche o nome sozinho nos apontamentos.</p>
+      <div class="cad-add-row cad-add-row-acesso">
+        <input type="text" id="acessoNomeInput" placeholder="Nome da pessoa">
+        <select id="acessoPapelInput">
+          <option value="colaborador">Colaborador</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <input type="text" id="acessoPinInput" placeholder="PIN" inputmode="numeric" maxlength="10">
+        <button class="btn btn-primary" id="btnAddAcesso">+ Adicionar</button>
+      </div>
+      <div id="acessosListWrap" class="cad-list"></div>
     </div>
   </div>
 </section>
@@ -1310,9 +1352,11 @@
     $('#viewGantt').style.display = view==='gantt' ? '' : 'none';
     $('#viewBoletim').style.display = view==='boletim' ? '' : 'none';
     $('#viewProducao').style.display = view==='producao' ? '' : 'none';
+    $('#viewCadastros').style.display = view==='cadastros' ? '' : 'none';
     if(view==='gantt') renderGantt();
     if(view==='boletim') renderBoletim();
     if(view==='producao') renderProducao();
+    if(view==='cadastros'){ renderProdutos(); renderAcessos(); }
   }
   $$('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> switchTab(btn.dataset.view));
@@ -1891,7 +1935,7 @@
     const tr = document.createElement('tr');
     tr.dataset.rowid = itemUid();
     tr.innerHTML = `
-      <td><input type="text" class="it-tipo" value="${escapeHtml(data.tipo||'')}" placeholder="TIPO"></td>
+      <td><input type="text" class="it-tipo" list="produtosDatalist" value="${escapeHtml(data.tipo||'')}" placeholder="TIPO"></td>
       <td class="col-desc"><input type="text" class="it-desc" value="${escapeHtml(data.descricao||'')}" placeholder="Descrição"></td>
       <td class="col-num"><input type="number" class="it-qtde" value="${data.qtde!=null?data.qtde:''}" min="0" step="1"></td>
       <td class="col-num"><input type="number" class="it-L" value="${data.L!=null?data.L:''}" step="any"></td>
@@ -2317,17 +2361,140 @@ ${bodyHtml}
   });
 
   // ================================================================
-  // CONTROLE DE ACESSO (login) — leia antes de alterar
+  // CADASTROS: PRODUTOS (tipos de item) e ACESSOS (login) — leia antes de alterar
   // ================================================================
   // Este arquivo roda inteiramente no navegador, sem servidor. Por isso,
-  // este PIN é uma barreira PRÁTICA para o dia a dia (evita que alguém
-  // mexa por engano ou sem permissão) — NÃO é segurança à prova de invasão,
-  // já que qualquer pessoa com acesso ao código-fonte consegue lê-lo.
-  // Para trocar os PINs, edite as duas constantes abaixo.
+  // o PIN de cada acesso é uma barreira PRÁTICA para o dia a dia (evita que
+  // alguém mexa por engano ou sem permissão) — NÃO é segurança à prova de
+  // invasão, já que qualquer pessoa com acesso ao código-fonte consegue lê-lo.
+  // Produtos e Acessos agora são gerenciados pela aba "Cadastros" — não
+  // precisa mais editar código pra adicionar uma pessoa ou um tipo de item.
   // ================================================================
-  const ADMIN_PIN = '2026';
-  const COLAB_PIN = '1111';
   const SESSION_KEY = 'kanbanop_session';
+
+  const DEFAULT_PRODUTOS = [
+    'ABRIGO','ALÇAPÃO','ARREMATE','BANDEJA','BICICLETÁRIO','BRISE','CAIXA DE ESGOTO',
+    'CLAUSURA','CONTRA MARCO','CORRIMÃO','ESCADA','ESCADA MARINHEIRO','ESCADA METÁLICA',
+    'ESTRUTURA DE FERRO','FACHADA','FECHAMENTO EM TELA','FOLHA','GARGULA','GRADIL',
+    'GRELHA','GUARDA CORPO','JANELA','MARCO','MESA','PASSA MÃO','PASSARELA','PEGA MÃO',
+    'PERGOLADO','PLATAFORMA','PORTA','PORTÃO','PORTINHOLA','QUADRO','TAMPA','VENEZIANA'
+  ];
+  const DEFAULT_ACESSOS = [
+    {id: 'acesso_admin_default', nome:'Administrador', papel:'admin', pin:'2026'},
+    {id: 'acesso_colab_default', nome:'Colaborador', papel:'colaborador', pin:'1111'},
+  ];
+
+  let produtosCatalogo = [];
+  let acessosCatalogo = [];
+  let currentUser = null; // {role, nome} da pessoa logada nesta sessão
+
+  async function loadCatalogos(){
+    try{
+      const r = await window.storage.get('config:produtos', false);
+      produtosCatalogo = JSON.parse(r.value);
+    }catch(e){
+      produtosCatalogo = DEFAULT_PRODUTOS.slice();
+      try{ await window.storage.set('config:produtos', JSON.stringify(produtosCatalogo), false); }catch(e2){}
+    }
+    try{
+      const r = await window.storage.get('config:acessos', false);
+      acessosCatalogo = JSON.parse(r.value);
+    }catch(e){
+      acessosCatalogo = DEFAULT_ACESSOS.slice();
+      try{ await window.storage.set('config:acessos', JSON.stringify(acessosCatalogo), false); }catch(e2){}
+    }
+    refreshProdutoDatalist();
+  }
+  async function saveProdutosCatalogo(){
+    try{ await window.storage.set('config:produtos', JSON.stringify(produtosCatalogo), false); }
+    catch(e){ toast('Erro ao salvar produtos.'); }
+  }
+  async function saveAcessosCatalogo(){
+    try{ await window.storage.set('config:acessos', JSON.stringify(acessosCatalogo), false); }
+    catch(e){ toast('Erro ao salvar acessos.'); }
+  }
+
+  function refreshProdutoDatalist(){
+    const dl = document.getElementById('produtosDatalist');
+    if(!dl) return;
+    const sorted = produtosCatalogo.slice().sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    dl.innerHTML = sorted.map(p=> `<option value="${escapeHtml(p)}"></option>`).join('');
+  }
+
+  function renderProdutos(){
+    const wrap = $('#produtosListWrap');
+    if(!wrap) return;
+    const sorted = produtosCatalogo.slice().sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    wrap.innerHTML = sorted.length ? sorted.map(p=> `
+      <div class="cad-row">
+        <span>${escapeHtml(p)}</span>
+        <button type="button" class="cad-rm" data-nome="${escapeHtml(p)}" title="Remover">&times;</button>
+      </div>`).join('') : '<div class="colab-empty">Nenhum produto cadastrado.</div>';
+
+    $$('.cad-rm', wrap).forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const ok = await showConfirm(`Remover "${btn.dataset.nome}" da lista de produtos?`, {title:'Remover produto', okLabel:'Remover'});
+        if(!ok) return;
+        produtosCatalogo = produtosCatalogo.filter(p=> p !== btn.dataset.nome);
+        await saveProdutosCatalogo();
+        refreshProdutoDatalist();
+        renderProdutos();
+        toast('Produto removido.');
+      });
+    });
+  }
+
+  $('#btnAddProduto').addEventListener('click', async ()=>{
+    const val = $('#produtoNovoInput').value.trim().toUpperCase();
+    if(!val){ toast('Digite o nome do produto.'); return; }
+    if(produtosCatalogo.includes(val)){ toast('Esse produto já está cadastrado.'); return; }
+    produtosCatalogo.push(val);
+    await saveProdutosCatalogo();
+    $('#produtoNovoInput').value = '';
+    refreshProdutoDatalist();
+    renderProdutos();
+    toast('Produto adicionado — ' + val);
+  });
+  $('#produtoNovoInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#btnAddProduto').click(); });
+
+  function renderAcessos(){
+    const wrap = $('#acessosListWrap');
+    if(!wrap) return;
+    wrap.innerHTML = acessosCatalogo.length ? acessosCatalogo.map(a=> `
+      <div class="cad-row">
+        <span><strong>${escapeHtml(a.nome)}</strong> — ${a.papel==='admin'?'Administrador':'Colaborador'} — PIN: ${escapeHtml(a.pin)}</span>
+        <button type="button" class="cad-rm" data-id="${a.id}" title="Remover">&times;</button>
+      </div>`).join('') : '<div class="colab-empty">Nenhum acesso cadastrado.</div>';
+
+    $$('.cad-rm', wrap).forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        if(acessosCatalogo.length <= 1){ toast('Não é possível remover o último acesso cadastrado.'); return; }
+        const acesso = acessosCatalogo.find(a=> a.id === btn.dataset.id);
+        if(!acesso) return;
+        const ok = await showConfirm(`Remover o acesso de "${acesso.nome}"?`, {title:'Remover acesso', okLabel:'Remover'});
+        if(!ok) return;
+        acessosCatalogo = acessosCatalogo.filter(a=> a.id !== btn.dataset.id);
+        await saveAcessosCatalogo();
+        renderAcessos();
+        toast('Acesso removido.');
+      });
+    });
+  }
+
+  $('#btnAddAcesso').addEventListener('click', async ()=>{
+    const nome = $('#acessoNomeInput').value.trim();
+    const papel = $('#acessoPapelInput').value;
+    const pin = $('#acessoPinInput').value.trim();
+    if(!nome || !pin){ toast('Preencha nome e PIN.'); return; }
+    if(acessosCatalogo.some(a=> a.pin === pin)){ toast('Esse PIN já está em uso por outra pessoa.'); return; }
+    acessosCatalogo.push({id: uid(), nome, papel, pin});
+    await saveAcessosCatalogo();
+    $('#acessoNomeInput').value = '';
+    $('#acessoPinInput').value = '';
+    renderAcessos();
+    toast('Acesso adicionado — ' + nome);
+  });
+  $('#acessoPinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#btnAddAcesso').click(); });
 
   function getSession(){
     try{
@@ -2342,61 +2509,43 @@ ${bodyHtml}
     try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
   }
 
-  let selectedRole = null;
-
   function showLogin(){
     $('#loginScreen').style.display = 'flex';
     $('#adminApp').style.display = 'none';
     $('#colabApp').style.display = 'none';
-    $('#loginRoles').style.display = 'flex';
-    $('#loginPinArea').style.display = 'none';
     $('#loginPinInput').value = '';
     $('#loginError').textContent = '';
-    selectedRole = null;
+    $('#loginPinInput').focus();
   }
-
-  $$('.role-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      selectedRole = btn.dataset.role;
-      $('#loginRoles').style.display = 'none';
-      $('#loginPinArea').style.display = 'flex';
-      $('#loginRoleLabel').textContent = selectedRole === 'admin' ? 'PIN do Administrador' : 'PIN do Colaborador';
-      $('#loginPinInput').value = '';
-      $('#loginError').textContent = '';
-      $('#loginPinInput').focus();
-    });
-  });
-
-  $('#loginBackBtn').addEventListener('click', ()=>{
-    selectedRole = null;
-    $('#loginPinArea').style.display = 'none';
-    $('#loginRoles').style.display = 'flex';
-  });
 
   function attemptLogin(){
     const pin = $('#loginPinInput').value.trim();
-    const correctPin = selectedRole === 'admin' ? ADMIN_PIN : COLAB_PIN;
-    if(!pin || pin !== correctPin){
+    const found = acessosCatalogo.find(a=> a.pin === pin);
+    if(!pin || !found){
       $('#loginError').textContent = 'PIN incorreto. Tente novamente.';
       $('#loginPinInput').value = '';
       $('#loginPinInput').focus();
       return;
     }
-    setSession({role: selectedRole, ts: Date.now()});
-    enterApp(selectedRole);
+    setSession({role: found.papel, nome: found.nome, ts: Date.now()});
+    enterApp(found.papel, found.nome);
   }
   $('#loginSubmitBtn').addEventListener('click', attemptLogin);
   $('#loginPinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') attemptLogin(); });
 
-  function enterApp(role){
+  function enterApp(role, nome){
+    currentUser = {role, nome: nome || ''};
     $('#loginScreen').style.display = 'none';
     if(role === 'admin'){
       $('#adminApp').style.display = '';
       $('#colabApp').style.display = 'none';
       loadAll();
+      renderProdutos();
+      renderAcessos();
     } else {
       $('#adminApp').style.display = 'none';
       $('#colabApp').style.display = '';
+      $('#colabWelcome').textContent = 'Logado como ' + (currentUser.nome || 'Colaborador');
       loadColabView();
     }
   }
@@ -2566,7 +2715,7 @@ ${bodyHtml}
             <div class="colab-apont-form">
               <label class="colab-field"><span>Data</span><input type="date" class="ap-data" value="${today}"></label>
               <label class="colab-field"><span>Peças produzidas</span><input type="number" class="ap-qtde" min="1" max="${restante}" placeholder="máx ${fmtNum(restante)}"></label>
-              <label class="colab-field"><span>Colaborador</span><input type="text" class="ap-nome" value="" placeholder="Seu nome"></label>
+              <span class="colab-apont-user">👤 Registrando como <strong>${escapeHtml((currentUser&&currentUser.nome)||'—')}</strong></span>
               <button type="button" class="colab-apont-add-btn" data-op="${op.id}" data-idx="${idx}">+ Registrar</button>
             </div>` : ''}
           </div>`;
@@ -2616,11 +2765,11 @@ ${bodyHtml}
         const block = btn.closest('.colab-item-block');
         const dataVal = $('.ap-data', block).value;
         const qtdeVal = parseFloat($('.ap-qtde', block).value);
-        const nomeVal = $('.ap-nome', block).value.trim();
+        const nomeVal = (currentUser && currentUser.nome) ? currentUser.nome.trim() : '';
 
         if(!dataVal){ toast('Informe a data.'); return; }
         if(!qtdeVal || qtdeVal <= 0){ toast('Informe a quantidade de peças produzidas.'); return; }
-        if(!nomeVal){ toast('Informe o nome do colaborador.'); return; }
+        if(!nomeVal){ toast('Não foi possível identificar seu usuário. Saia e entre novamente.'); return; }
 
         const total = Number(it.qtde)||0;
         const jaFeito = itemQtdeProduzida(it);
@@ -2671,12 +2820,15 @@ ${bodyHtml}
   }
 
   // ---------------- Inicialização ----------------
-  const existingSession = getSession();
-  if(existingSession && (existingSession.role === 'admin' || existingSession.role === 'colaborador')){
-    enterApp(existingSession.role);
-  } else {
-    showLogin();
-  }
+  (async function initApp(){
+    await loadCatalogos();
+    const existingSession = getSession();
+    if(existingSession && (existingSession.role === 'admin' || existingSession.role === 'colaborador')){
+      enterApp(existingSession.role, existingSession.nome);
+    } else {
+      showLogin();
+    }
+  })();
 })();
 </script>
 </body>
