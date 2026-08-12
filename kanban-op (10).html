@@ -409,10 +409,139 @@
     .boletim-preview-wrap{ border:none !important; background:#fff !important; padding:0; }
     .boletim-preview{ border:1px solid #ccc; }
   }
+
+  /* ---------- Login ---------- */
+  .login-screen{
+    position:fixed; inset:0; background:var(--bg);
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    display:flex; align-items:center; justify-content:center; z-index:5000; padding:20px;
+  }
+  .login-card{
+    width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:36px 32px; text-align:center; box-shadow:var(--shadow);
+  }
+  .login-mark{
+    width:44px; height:44px; margin:0 auto 18px; border-radius:10px;
+    background:repeating-linear-gradient(135deg, var(--amber), var(--amber) 4px, #17181B 4px, #17181B 8px);
+    border:1px solid var(--line);
+  }
+  .login-card h1{font-family:'Archivo',sans-serif; font-size:19px; font-weight:800; margin:0;}
+  .login-sub{font-size:12.5px; color:var(--text-dim); margin:4px 0 26px;}
+  .login-roles{display:flex; flex-direction:column; gap:10px;}
+  .role-btn{
+    display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--line);
+    color:var(--text); padding:14px 16px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;
+    font-family:'Inter',sans-serif; transition:.15s; text-align:left;
+  }
+  .role-btn:hover{border-color:var(--amber); background:#2b2f34;}
+  .role-ic{font-size:18px;}
+  .login-pin-area{margin-top:6px; display:flex; flex-direction:column; gap:12px;}
+  .login-pin-label{font-size:13px; font-weight:700; color:var(--text-dim);}
+  .login-pin-input{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px 14px;
+    color:var(--text); font-size:16px; text-align:center; letter-spacing:4px; font-family:'IBM Plex Mono',monospace;
+  }
+  .login-pin-input:focus{outline:none; border-color:var(--amber);}
+  .login-error{color:var(--danger); font-size:12.5px; min-height:16px; margin:0;}
+  .login-actions{display:flex; gap:8px;}
+  .login-actions .btn{flex:1; justify-content:center;}
+
+  /* ---------- Colaborador mode ---------- */
+  .colab-header{
+    padding:20px 24px 16px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+  .colab-header .toolbar{margin-top:16px;}
+  .colab-list-wrap{padding:20px 24px 60px; max-width:900px; margin:0 auto;}
+  .colab-op-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; margin-bottom:14px; overflow:hidden;
+  }
+  .colab-op-head{
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; gap:12px; flex-wrap:wrap;
+  }
+  .colab-op-head:hover{background:var(--panel-2);}
+  .colab-op-title{display:flex; align-items:center; gap:10px;}
+  .colab-op-code{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:14px;}
+  .colab-op-sub{font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .colab-chevron{color:var(--text-faint); font-size:13px; transition:.15s;}
+  .colab-op-card.open .colab-chevron{transform:rotate(90deg);}
+  .colab-items-body{display:none; border-top:1px solid var(--line);}
+  .colab-op-card.open .colab-items-body{display:block;}
+  .colab-item-row{
+    padding:12px 16px; border-bottom:1px solid var(--line-soft); display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .colab-item-row:last-child{border-bottom:none;}
+  .colab-item-info{flex:1; min-width:160px;}
+  .colab-item-tipo{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px;}
+  .colab-item-desc{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+  .colab-item-fields{display:flex; gap:8px; flex-wrap:wrap;}
+  .colab-field{display:flex; flex-direction:column; gap:3px;}
+  .colab-field span{font-size:9.5px; text-transform:uppercase; color:var(--text-faint); font-weight:700;}
+  .colab-field input{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:6px 8px;
+    color:var(--text); font-size:12px; font-family:'Inter',sans-serif; color-scheme:dark;
+  }
+  .colab-field input[type="text"]{width:120px;}
+  .colab-field input:focus{outline:none; border-color:var(--amber);}
+  .colab-empty{text-align:center; padding:60px 20px; color:var(--text-faint); font-size:13px;}
 </style>
 </head>
 <body>
 
+<!-- ============ TELA DE LOGIN ============ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-mark"></div>
+    <h1>Kanban de OPs</h1>
+    <p class="login-sub">Belmonte Indústria — Ferro &amp; Alumínio</p>
+    <div class="login-roles" id="loginRoles">
+      <button class="role-btn" data-role="admin">
+        <span class="role-ic">👤</span>
+        <span>Administrador</span>
+      </button>
+      <button class="role-btn" data-role="colaborador">
+        <span class="role-ic">🛠️</span>
+        <span>Colaborador</span>
+      </button>
+    </div>
+    <div class="login-pin-area" id="loginPinArea" style="display:none;">
+      <label id="loginRoleLabel" class="login-pin-label"></label>
+      <input type="password" id="loginPinInput" class="login-pin-input" placeholder="Digite o PIN" inputmode="numeric" autocomplete="off">
+      <p class="login-error" id="loginError"></p>
+      <div class="login-actions">
+        <button class="btn" id="loginBackBtn">← Voltar</button>
+        <button class="btn btn-primary" id="loginSubmitBtn">Entrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODO COLABORADOR ============ -->
+<div id="colabApp" style="display:none;">
+  <header class="colab-header">
+    <div class="header-row">
+      <div class="brand">
+        <div class="login-mark" style="width:30px;height:30px;"></div>
+        <div>
+          <h1>Produção — Modo Colaborador</h1>
+          <p id="colabWelcome">Ordens de Produção — Ferro &amp; Alumínio</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="btnColabLogout">Sair</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input class="search" id="colabSearchInput" type="text" placeholder="Buscar por código, cliente ou obra...">
+    </div>
+  </header>
+  <div class="colab-list-wrap">
+    <div id="colabOpList"></div>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none;">
 <header>
   <div class="header-row">
     <div class="brand">
@@ -429,6 +558,7 @@
       <input type="file" id="importFileInput" accept="application/json" style="display:none;">
       <button class="btn" id="btnPrint">🖨 Imprimir</button>
       <button class="btn btn-primary" id="btnNewOp">+ Nova OP</button>
+      <button class="btn btn-danger" id="btnAdminLogout" title="Sair">Sair</button>
     </div>
   </div>
 
@@ -504,6 +634,8 @@
   </div>
 </section>
 
+</div><!-- /#adminApp -->
+
 <div class="toast" id="toast"></div>
 
 <!-- ============ MODAL: Novo/Editar OP ============ -->
@@ -542,8 +674,8 @@
         </div>
       </div>
       <div class="field">
-        <label>Endereço</label>
-        <input type="text" id="fEndereco" placeholder="Endereço da obra">
+        <label>Data planejada de entrega</label>
+        <input type="date" id="fPlanejadaEntrega">
       </div>
       <div class="field">
         <label>Colaborador responsável</label>
@@ -817,10 +949,9 @@
         material: 'FERRO',
         cliente: 'MUNDO APTO',
         obra: 'BROOKLIN (MA22 - ELEUTERIO)',
-        endereco: 'RUA ELEUTERIO, 58 - BROOKLIN - SÃO PAULO - SP',
         etapa: 'ETAPA 5 - 13° AO 15° PAV + PENDÊNCIAS GR05',
         inicio: '2026-08-01', termino: '2026-08-09',
-        dataCarregamento: '2026-08-10', dataEntrega: '2026-08-11',
+        dataCarregamento: '2026-08-10', dataEntrega: '2026-08-11', dataPlanejadaEntrega: '2026-08-11',
         status: 'liberado',
         createdAt: Date.now() - 2000,
         itens: [
@@ -838,10 +969,9 @@
         material: 'ALUMINIO',
         cliente: 'HESA 182 INVESTIMENTOS IMOBILIARIOS LTDA - TOLEDO FERRARI',
         obra: 'OPEN MIND (ENXOVIA)',
-        endereco: 'RUA ENXOVIA, N°423, CHACARÁ STO ANTÔNIO - SÃO PAULO - SP',
         etapa: '',
         inicio: '2026-08-05', termino: '2026-08-20',
-        dataCarregamento: '', dataEntrega: '',
+        dataCarregamento: '', dataEntrega: '', dataPlanejadaEntrega: '2026-08-22',
         status: 'liberado',
         createdAt: Date.now() - 1000,
         itens: [
@@ -1382,7 +1512,7 @@
     $('#fEtapa').value = '';
     $('#fCliente').value = '';
     $('#fObra').value = '';
-    $('#fEndereco').value = '';
+    $('#fPlanejadaEntrega').value = '';
     $('#fColaborador').value = '';
     $('#fInicio').value = '';
     $('#fTermino').value = '';
@@ -1402,7 +1532,7 @@
     $('#fEtapa').value = op.etapa || '';
     $('#fCliente').value = op.cliente || '';
     $('#fObra').value = op.obra || '';
-    $('#fEndereco').value = op.endereco || '';
+    $('#fPlanejadaEntrega').value = op.dataPlanejadaEntrega || '';
     $('#fColaborador').value = op.colaborador || '';
     $('#fInicio').value = op.inicio || '';
     $('#fTermino').value = op.termino || '';
@@ -1473,7 +1603,7 @@
       material: selectedMat,
       cliente: $('#fCliente').value.trim(),
       obra: $('#fObra').value.trim(),
-      endereco: $('#fEndereco').value.trim(),
+      dataPlanejadaEntrega: $('#fPlanejadaEntrega').value,
       colaborador: $('#fColaborador').value.trim(),
       etapa: $('#fEtapa').value.trim(),
       inicio: $('#fInicio').value,
@@ -1540,6 +1670,9 @@
         <td>${fmtNum(it.L)}</td>
         <td>${fmtNum(it.H)}</td>
         <td>${fmtNum(it.peso)}</td>
+        <td>${it.dataInicioItem ? fmtDateBR(it.dataInicioItem) : '—'}</td>
+        <td>${it.dataTerminoItem ? fmtDateBR(it.dataTerminoItem) : '—'}</td>
+        <td style="font-family:'Inter',sans-serif;">${escapeHtml(it.colaboradorItem)||'—'}</td>
       </tr>`).join('');
 
     $('#viewBody').innerHTML = `
@@ -1580,9 +1713,15 @@
         </div>
       </div>
 
-      <div class="detail-section">
-        <div class="detail-label">Endereço</div>
-        <div class="detail-value">${escapeHtml(op.endereco)||'—'}</div>
+      <div class="row2">
+        <div class="detail-section">
+          <div class="detail-label">Data planejada de entrega</div>
+          <div class="detail-value">${op.dataPlanejadaEntrega ? fmtDateBR(op.dataPlanejadaEntrega) : '—'}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Data entrega (real)</div>
+          <div class="detail-value">${op.dataEntrega ? fmtDateBR(op.dataEntrega) : '—'}</div>
+        </div>
       </div>
 
       <div class="row2">
@@ -1607,10 +1746,10 @@
       <div class="detail-section">
         <div class="detail-label">Itens (${(op.itens||[]).length})</div>
         <table class="items-view">
-          <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th></tr></thead>
-          <tbody>${itemsRows || '<tr><td colspan="6" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
+          <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Início item</th><th>Término item</th><th>Colaborador</th></tr></thead>
+          <tbody>${itemsRows || '<tr><td colspan="9" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
           <tfoot>
-            <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td></tr>
+            <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td><td colspan="3"></td></tr>
           </tfoot>
         </table>
       </div>
@@ -1847,7 +1986,184 @@ ${bodyHtml}
     e.target.value = '';
   });
 
-  loadAll();
+  // ================================================================
+  // CONTROLE DE ACESSO (login) — leia antes de alterar
+  // ================================================================
+  // Este arquivo roda inteiramente no navegador, sem servidor. Por isso,
+  // este PIN é uma barreira PRÁTICA para o dia a dia (evita que alguém
+  // mexa por engano ou sem permissão) — NÃO é segurança à prova de invasão,
+  // já que qualquer pessoa com acesso ao código-fonte consegue lê-lo.
+  // Para trocar os PINs, edite as duas constantes abaixo.
+  // ================================================================
+  const ADMIN_PIN = '2026';
+  const COLAB_PIN = '1111';
+  const SESSION_KEY = 'kanbanop_session';
+
+  function getSession(){
+    try{
+      const raw = localStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function setSession(session){
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }catch(e){}
+  }
+  function clearSession(){
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  }
+
+  let selectedRole = null;
+
+  function showLogin(){
+    $('#loginScreen').style.display = 'flex';
+    $('#adminApp').style.display = 'none';
+    $('#colabApp').style.display = 'none';
+    $('#loginRoles').style.display = 'flex';
+    $('#loginPinArea').style.display = 'none';
+    $('#loginPinInput').value = '';
+    $('#loginError').textContent = '';
+    selectedRole = null;
+  }
+
+  $$('.role-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedRole = btn.dataset.role;
+      $('#loginRoles').style.display = 'none';
+      $('#loginPinArea').style.display = 'flex';
+      $('#loginRoleLabel').textContent = selectedRole === 'admin' ? 'PIN do Administrador' : 'PIN do Colaborador';
+      $('#loginPinInput').value = '';
+      $('#loginError').textContent = '';
+      $('#loginPinInput').focus();
+    });
+  });
+
+  $('#loginBackBtn').addEventListener('click', ()=>{
+    selectedRole = null;
+    $('#loginPinArea').style.display = 'none';
+    $('#loginRoles').style.display = 'flex';
+  });
+
+  function attemptLogin(){
+    const pin = $('#loginPinInput').value.trim();
+    const correctPin = selectedRole === 'admin' ? ADMIN_PIN : COLAB_PIN;
+    if(!pin || pin !== correctPin){
+      $('#loginError').textContent = 'PIN incorreto. Tente novamente.';
+      $('#loginPinInput').value = '';
+      $('#loginPinInput').focus();
+      return;
+    }
+    setSession({role: selectedRole, ts: Date.now()});
+    enterApp(selectedRole);
+  }
+  $('#loginSubmitBtn').addEventListener('click', attemptLogin);
+  $('#loginPinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') attemptLogin(); });
+
+  function enterApp(role){
+    $('#loginScreen').style.display = 'none';
+    if(role === 'admin'){
+      $('#adminApp').style.display = '';
+      $('#colabApp').style.display = 'none';
+      loadAll();
+    } else {
+      $('#adminApp').style.display = 'none';
+      $('#colabApp').style.display = '';
+      loadColabView();
+    }
+  }
+
+  async function doLogout(){
+    const ok = await showConfirm('Deseja realmente sair?', {title:'Sair', okLabel:'Sair'});
+    if(!ok) return;
+    clearSession();
+    location.reload();
+  }
+  $('#btnAdminLogout').addEventListener('click', doLogout);
+  $('#btnColabLogout').addEventListener('click', doLogout);
+
+  // ================================================================
+  // MODO COLABORADOR
+  // ================================================================
+  let colabSearchTerm = '';
+  $('#colabSearchInput').addEventListener('input', ()=>{
+    colabSearchTerm = $('#colabSearchInput').value.trim().toLowerCase();
+    renderColabList();
+  });
+
+  async function loadColabView(){
+    await loadAll(); // reaproveita o carregamento de dados; o quadro admin fica oculto
+    renderColabList();
+  }
+
+  function renderColabList(){
+    const wrap = $('#colabOpList');
+    if(!wrap) return;
+    const list = ops.filter(op=>{
+      if(!colabSearchTerm) return true;
+      const hay = (op.codigo+' '+op.cliente+' '+op.obra).toLowerCase();
+      return hay.includes(colabSearchTerm);
+    });
+
+    if(list.length===0){
+      wrap.innerHTML = '<div class="colab-empty">Nenhuma OP encontrada.</div>';
+      return;
+    }
+
+    wrap.innerHTML = list.map(op=>{
+      const itemsHtml = (op.itens||[]).map((it,idx)=>`
+        <div class="colab-item-row">
+          <div class="colab-item-info">
+            <div class="colab-item-tipo">${escapeHtml(it.tipo || ('Item ' + (idx+1)))}</div>
+            <div class="colab-item-desc">${escapeHtml(it.descricao||'')} · ${fmtNum(it.qtde)} pçs</div>
+          </div>
+          <div class="colab-item-fields">
+            <label class="colab-field"><span>Início</span><input type="date" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="dataInicioItem" value="${it.dataInicioItem||''}"></label>
+            <label class="colab-field"><span>Término</span><input type="date" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="dataTerminoItem" value="${it.dataTerminoItem||''}"></label>
+            <label class="colab-field"><span>Colaborador</span><input type="text" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="colaboradorItem" value="${escapeHtml(it.colaboradorItem||'')}" placeholder="Nome"></label>
+          </div>
+        </div>`).join('');
+      return `
+        <div class="colab-op-card" data-op="${op.id}">
+          <div class="colab-op-head">
+            <div class="colab-op-title">
+              <span class="mat-badge ${matClass(op.material)}">${matLabel(op.material)}</span>
+              <div>
+                <div class="colab-op-code">${escapeHtml(op.codigo)}</div>
+                <div class="colab-op-sub">${escapeHtml(op.obra||'—')} · ${escapeHtml(op.cliente||'—')}</div>
+              </div>
+            </div>
+            <span class="colab-chevron">▶</span>
+          </div>
+          <div class="colab-items-body">${itemsHtml || '<div class="colab-item-row">Nenhum item cadastrado nesta OP.</div>'}</div>
+        </div>`;
+    }).join('');
+
+    $$('.colab-op-head', wrap).forEach(head=>{
+      head.addEventListener('click', ()=>{
+        head.closest('.colab-op-card').classList.toggle('open');
+      });
+    });
+
+    $$('.colab-it-input', wrap).forEach(inp=>{
+      inp.addEventListener('click', e=> e.stopPropagation());
+      inp.addEventListener('change', async ()=>{
+        const op = ops.find(o=>o.id===inp.dataset.op);
+        if(!op || !op.itens) return;
+        const idx = parseInt(inp.dataset.idx, 10);
+        if(!op.itens[idx]) return;
+        op.itens[idx][inp.dataset.field] = inp.value;
+        await saveOp(op, true);
+        toast('Salvo — ' + op.codigo);
+      });
+    });
+  }
+
+  // ---------------- Inicialização ----------------
+  const existingSession = getSession();
+  if(existingSession && (existingSession.role === 'admin' || existingSession.role === 'colaborador')){
+    enterApp(existingSession.role);
+  } else {
+    showLogin();
+  }
 })();
 </script>
 </body>
