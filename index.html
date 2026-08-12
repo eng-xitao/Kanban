@@ -67,7 +67,7 @@
   header .btn-danger{ color:var(--danger); border-color:var(--danger); background:var(--dark-panel); }
   header .brand-divider{ background:var(--dark-line); }
   .header-row{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
-  .header-actions{display:flex; gap:8px;}
+  .header-actions{display:flex; gap:8px; flex-wrap:wrap;}
   .brand{display:flex; align-items:center; gap:14px;}
   .brand-logo{
     height:34px; width:auto; flex-shrink:0;
@@ -261,11 +261,42 @@
   ::-webkit-scrollbar-thumb{background:#C7CBD1; border-radius:8px;}
   ::-webkit-scrollbar-track{background:transparent;}
 
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:6px;}
+
   @media (max-width:640px){
     .row2, .row3{grid-template-columns:1fr;}
     .board{grid-auto-columns:82vw;}
-    header{padding:16px;}
+    header{padding:14px;}
     .board-wrap{padding:16px 16px 50px;}
+    .header-row{gap:12px;}
+    .brand{gap:10px;}
+    .brand h1{font-size:16px;}
+    .header-actions{width:100%;}
+    .header-actions .btn{flex:1 1 auto; justify-content:center; padding:9px 10px; font-size:12.5px;}
+    .stats{gap:8px;}
+    .stat{min-width:0; flex:1 1 calc(50% - 8px); padding:8px 10px;}
+    .overlay{padding:14px 10px;}
+    #opOverlay{padding:0;}
+    #opOverlay .modal{max-width:100%; min-height:100vh; border-radius:0; border:none;}
+    #opOverlay .modal-body{max-height:none;}
+    .items-table th, .items-view th{font-size:9px;}
+    .items-table td, .items-view td{padding:2px 4px 2px 0;}
+    .prod-toolbar, .gantt-toolbar, .boletim-controls, .colab-header .toolbar{flex-direction:column; align-items:stretch;}
+    .prod-toolbar .search, .prod-colab-select{width:100%;}
+    .prod-layout, .cad-layout{grid-template-columns:1fr; padding:16px 16px 50px;}
+    .colab-list-wrap{padding:16px 16px 50px;}
+    .colab-op-title{min-width:0; flex-wrap:wrap;}
+    .colab-op-progress-wrap{width:100%; justify-content:space-between;}
+    .colab-item-top{flex-direction:column; align-items:flex-start; gap:6px;}
+    .colab-item-progress{width:100%;}
+    .colab-apont-form{width:100%;}
+    .colab-apont-form .colab-field{flex:1 1 100px;}
+    .login-card{padding:28px 22px;}
+    .gantt-legend{display:none;}
+    .print-modes{width:100%;}
+    .print-modes .btn{flex:1;}
+    .cad-add-row-acesso{flex-direction:column;}
+    .cad-add-row-acesso input, .cad-add-row-acesso select{width:100%;}
   }
 
   /* ---------- Tabs ---------- */
@@ -607,7 +638,7 @@
   .prod-apont-table .pa-date{font-family:'IBM Plex Mono',monospace; white-space:nowrap; color:var(--text-dim);}
   .prod-apont-table .pa-op{font-family:'IBM Plex Mono',monospace; font-weight:700; white-space:nowrap;}
   .prod-apont-table .pa-qtde{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--ok); white-space:nowrap;}
-  .prod-apont-wrap{max-height:640px; overflow-y:auto; border:1px solid var(--line); border-radius:9px; background:var(--panel);}
+  .prod-apont-wrap{max-height:640px; overflow-y:auto; overflow-x:auto; border:1px solid var(--line); border-radius:9px; background:var(--panel);}
   @media (max-width:900px){ .prod-layout{grid-template-columns:1fr;} }
 
   /* ---------- Cadastros (produtos / acessos) ---------- */
@@ -900,6 +931,7 @@
 
       <div class="field">
         <label>Itens</label>
+        <div class="table-scroll">
         <table class="items-table" id="itemsTable">
           <thead>
             <tr>
@@ -914,6 +946,7 @@
           </thead>
           <tbody id="itemsBody"></tbody>
         </table>
+        </div>
         <button class="btn btn-ghost add-item-btn" id="addItemBtn">+ Adicionar item</button>
       </div>
     </div>
@@ -2135,6 +2168,7 @@
 
       <div class="detail-section">
         <div class="detail-label">Itens (${(op.itens||[]).length})</div>
+        <div class="table-scroll">
         <table class="items-view">
           <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Produzido</th><th>Colaboradores</th></tr></thead>
           <tbody>${itemsRows || '<tr><td colspan="8" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
@@ -2142,6 +2176,7 @@
             <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td><td colspan="2"></td></tr>
           </tfoot>
         </table>
+        </div>
       </div>
     `;
 
