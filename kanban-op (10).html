@@ -1278,6 +1278,32 @@
     });
     return Object.values(map).sort((a,b)=> b.pecas - a.pecas);
   }
+
+  // Versão "curada" usada nos cards do Kanban: só destaca essas 4 tipologias
+  // (as mais acompanhadas no dia a dia) cada uma na sua linha, e agrupa
+  // qualquer outra coisa junto em "OUTROS" — pra não lotar o card com
+  // dezenas de linhas quando a OP tem muitos tipos de item diferentes.
+  const FEATURED_TIPOS = ['GUARDA CORPO', 'FECHAMENTO EM TELA', 'GRADIL', 'CORRIMÃO'];
+  function groupItemsByFeaturedTipo(opsList){
+    const buckets = {};
+    FEATURED_TIPOS.forEach(t=> buckets[t] = {tipo:t, pecas:0, ml:0, m2:0, peso:0});
+    buckets['OUTROS'] = {tipo:'OUTROS', pecas:0, ml:0, m2:0, peso:0};
+
+    opsList.forEach(op=>{
+      (op.itens||[]).forEach(it=>{
+        const tipo = (it.descricao || '').trim().toUpperCase();
+        const key = FEATURED_TIPOS.includes(tipo) ? tipo : 'OUTROS';
+        const qtde = Number(it.qtde)||0, L = Number(it.L)||0, H = Number(it.H)||0;
+        buckets[key].pecas += qtde;
+        buckets[key].ml += L * qtde;
+        buckets[key].m2 += L * H * qtde;
+        buckets[key].peso += Number(it.peso)||0;
+      });
+    });
+
+    // só mostra as que realmente têm alguma peça, mantendo a ordem: as 4 fixas primeiro, "Outros" por último
+    return Object.values(buckets).filter(b=> b.pecas > 0);
+  }
   function parseDateBR(d){ return d ? new Date(d + 'T00:00:00') : null; }
   function fmtDateBR(d){
     if(!d) return '';
@@ -1406,6 +1432,7 @@
     const pecas = pecasTotal(op);
     const mLinear = mLinearTotal(op);
     const nItens = (op.itens||[]).length;
+    const tiposCard = groupItemsByFeaturedTipo([op]);
 
     card.innerHTML = `
       <div class="card-top">
@@ -1420,6 +1447,14 @@
         <div class="fig"><div class="fig-num">${fmtNum(pecas)}</div><div class="fig-lbl">Peças</div></div>
         <div class="fig"><div class="fig-num">${fmtNum(mLinear)} m</div><div class="fig-lbl">Linear</div></div>
       </div>
+      ${tiposCard.length ? `
+      <div class="card-types">
+        ${tiposCard.map(t=>`
+          <div class="card-type-row">
+            <span class="ct-name">${escapeHtml(t.tipo)}</span>
+            <span class="ct-metrics">${fmtNum(t.pecas)}pç · ${fmtNum(t.ml)}m · ${fmtNum(t.m2)}m² · ${fmtNum(t.peso)}kg</span>
+          </div>`).join('')}
+      </div>` : ''}
       <div class="card-meta">
         <span>${nItens} ${nItens===1?'item':'itens'}</span>
         <span class="peso">${fmtNum(peso)} kg</span>
@@ -2093,6 +2128,7 @@
     $('.rm-item', tr).addEventListener('click', ()=>{
       tr.remove();
     });
+    $('.it-desc', tr).addEventListener('focus', function(){ this.select(); });
     $('#itemsBody').appendChild(tr);
   }
   $('#addItemBtn').addEventListener('click', ()=> addItemRow());
