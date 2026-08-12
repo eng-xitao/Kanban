@@ -492,9 +492,6 @@
   .colab-op-bar-fill.complete{background:var(--ok);}
   .colab-op-pct{font-size:11.5px; font-weight:700; color:var(--text-dim); white-space:nowrap;}
   .colab-status-badge{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:3px 8px; border-radius:20px; white-space:nowrap;}
-  .colab-status-badge.pendente{background:#3a3d41; color:#d9dcdf;}
-  .colab-status-badge.parcial{background:#4a3620; color:var(--amber);}
-  .colab-status-badge.completo{background:#1c3a28; color:var(--ok);}
   .colab-chevron{color:var(--text-faint); font-size:13px; transition:.15s;}
   .colab-op-card.open .colab-chevron{transform:rotate(90deg);}
   .colab-items-body{display:none; border-top:1px solid var(--line);}
@@ -585,12 +582,7 @@
     </div>
     <div class="toolbar">
       <input class="search" id="colabSearchInput" type="text" placeholder="Buscar por código, cliente ou obra...">
-      <div class="filters" id="colabStatusFilters">
-        <button class="filter-btn active" data-status="todas">Todas</button>
-        <button class="filter-btn" data-status="pendente">Pendentes</button>
-        <button class="filter-btn" data-status="parcial">Em produção</button>
-        <button class="filter-btn" data-status="completo">Concluídas</button>
-      </div>
+      <div class="filters" id="colabStatusFilters"></div>
     </div>
     <div class="stats" id="colabStatsBar"></div>
   </header>
@@ -2168,16 +2160,24 @@ ${bodyHtml}
     });
     return {total, feito, pct: total>0 ? Math.min(100, Math.round(feito/total*100)) : 0};
   }
-  function opStatus(op){
-    const {total, feito} = opProgress(op);
-    if(feito <= 0) return 'pendente';
-    if(total>0 && feito >= total) return 'completo';
-    return 'parcial';
+
+  // O status da OP mostrado ao colaborador é SEMPRE o mesmo campo (op.status)
+  // que o admin controla no Kanban — não existe um status "calculado" separado,
+  // então as duas telas nunca podem ficar dessincronizadas.
+  function opStatusInfo(op){
+    return STATUSES.find(s=>s.key===op.status) || {key:op.status, label:op.status, dot:'#9BA1A9'};
   }
-  const STATUS_LABEL = {pendente:'Pendente', parcial:'Em produção', completo:'Concluída'};
 
   let colabSearchTerm = '';
   let colabStatusFilter = 'todas';
+
+  function buildColabStatusFilters(){
+    const wrap = $('#colabStatusFilters');
+    if(!wrap) return;
+    const buttons = [`<button class="filter-btn ${colabStatusFilter==='todas'?'active':''}" data-status="todas">Todas</button>`]
+      .concat(STATUSES.map(s=>`<button class="filter-btn ${colabStatusFilter===s.key?'active':''}" data-status="${s.key}"><span class="swatch" style="background:${s.dot}"></span>${s.label}</button>`));
+    wrap.innerHTML = buttons.join('');
+  }
 
   $('#colabSearchInput').addEventListener('input', ()=>{
     colabSearchTerm = $('#colabSearchInput').value.trim().toLowerCase();
@@ -2194,6 +2194,7 @@ ${bodyHtml}
 
   async function loadColabView(){
     await loadAll(); // reaproveita o carregamento de dados; o quadro admin fica oculto
+    buildColabStatusFilters();
     renderColabStats();
     renderColabList();
   }
@@ -2201,18 +2202,18 @@ ${bodyHtml}
   function renderColabStats(){
     const bar = $('#colabStatsBar');
     if(!bar) return;
-    let totalPecas = 0, feitoPecas = 0, pendentes = 0, parciais = 0, completas = 0;
+    let totalPecas = 0, feitoPecas = 0;
     ops.forEach(op=>{
       const p = opProgress(op);
       totalPecas += p.total; feitoPecas += p.feito;
-      const st = opStatus(op);
-      if(st==='pendente') pendentes++; else if(st==='parcial') parciais++; else completas++;
     });
+    // mesmo critério usado na barra de estatísticas do admin — garante que o número bata dos dois lados
+    const emAndamento = ops.filter(o=>o.status!=='entregue').length;
+    const entregues = ops.filter(o=>o.status==='entregue').length;
     bar.innerHTML = `
       <div class="stat"><div class="num">${ops.length}</div><div class="lbl">OPs totais</div></div>
-      <div class="stat"><div class="num">${pendentes}</div><div class="lbl">Pendentes</div></div>
-      <div class="stat"><div class="num" style="color:var(--amber)">${parciais}</div><div class="lbl">Em produção</div></div>
-      <div class="stat"><div class="num" style="color:var(--ok)">${completas}</div><div class="lbl">Concluídas</div></div>
+      <div class="stat"><div class="num">${emAndamento}</div><div class="lbl">Em andamento</div></div>
+      <div class="stat"><div class="num" style="color:var(--ok)">${entregues}</div><div class="lbl">Entregues</div></div>
       <div class="stat stat-hero"><div class="num">${fmtNum(feitoPecas)} / ${fmtNum(totalPecas)}</div><div class="lbl">Peças produzidas</div></div>
     `;
   }
@@ -2222,7 +2223,7 @@ ${bodyHtml}
     if(!wrap) return;
 
     const list = ops.filter(op=>{
-      if(colabStatusFilter !== 'todas' && opStatus(op) !== colabStatusFilter) return false;
+      if(colabStatusFilter !== 'todas' && op.status !== colabStatusFilter) return false;
       if(!colabSearchTerm) return true;
       const hay = (op.codigo+' '+op.cliente+' '+op.obra).toLowerCase();
       return hay.includes(colabSearchTerm);
@@ -2237,7 +2238,7 @@ ${bodyHtml}
 
     wrap.innerHTML = list.map(op=>{
       const prog = opProgress(op);
-      const st = opStatus(op);
+      const stInfo = opStatusInfo(op);
 
       const itemsHtml = (op.itens||[]).map((it,idx)=>{
         const total = Number(it.qtde)||0;
@@ -2289,9 +2290,9 @@ ${bodyHtml}
               </div>
             </div>
             <div class="colab-op-progress-wrap">
-              <span class="colab-status-badge ${st}">${STATUS_LABEL[st]}</span>
-              <div class="colab-op-bar"><div class="colab-op-bar-fill ${st==='completo'?'complete':''}" style="width:${prog.pct}%;"></div></div>
-              <span class="colab-op-pct">${fmtNum(prog.feito)}/${fmtNum(prog.total)}</span>
+              <span class="colab-status-badge" style="background:${stInfo.dot}22; color:${stInfo.dot};">${escapeHtml(stInfo.label)}</span>
+              <div class="colab-op-bar"><div class="colab-op-bar-fill ${prog.total>0 && prog.feito>=prog.total?'complete':''}" style="width:${prog.pct}%;"></div></div>
+              <span class="colab-op-pct">${fmtNum(prog.feito)}/${fmtNum(prog.total)} pçs</span>
             </div>
             <span class="colab-chevron">▶</span>
           </div>
