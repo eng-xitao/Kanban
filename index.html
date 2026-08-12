@@ -137,6 +137,12 @@
   }
   .col-head-top{display:flex; align-items:center; justify-content:space-between;}
   .col-subtotal{margin-top:6px; font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim);}
+  .col-tipos-toggle{
+    background:none; border:none; color:var(--text-faint); font-size:10.5px; font-weight:700; cursor:pointer;
+    padding:4px 0 0; font-family:'Inter',sans-serif;
+  }
+  .col-tipos-toggle:hover{color:var(--amber);}
+  .col-tipos-list{flex-direction:column; gap:3px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--line);}
   .col-head .title{display:flex; align-items:center; gap:8px;}
   .col-head .dot{width:9px;height:9px;border-radius:50%;}
   .col-head h3{margin:0; font-size:13px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase; font-family:'Archivo',sans-serif;}
@@ -147,7 +153,7 @@
   /* ---------- Card ---------- */
   .card{
     background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 13px;
-    cursor:grab; transition:.15s; position:relative; overflow:hidden;
+    cursor:grab; transition:.15s; position:relative; overflow:hidden; min-height:178px;
     box-shadow:0 1px 2px rgba(20,22,26,0.05);
   }
   .card:hover{border-color:#B9BEC5; transform:translateY(-1px); box-shadow:0 4px 10px rgba(20,22,26,0.10);}
@@ -158,8 +164,8 @@
   }
   .card::after{
     content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
-    background:linear-gradient(135deg, var(--card-accent, transparent) 0%, transparent 60%);
-    opacity:0.14;
+    background:linear-gradient(135deg, var(--card-accent, transparent) 0%, transparent 55%);
+    opacity:0.09;
   }
   .card-top, .card-obra, .card-cliente, .card-etapa, .card-colab, .card-figures, .card-meta, .card-actions{position:relative; z-index:1;}
   .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
@@ -177,6 +183,10 @@
   .fig{flex:1; background:var(--panel-2); border:1px solid var(--line-soft); border-radius:6px; padding:6px 8px;}
   .fig-num{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; color:var(--text);}
   .fig-lbl{font-size:9.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.4px; margin-top:1px;}
+  .card-types{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-soft); display:flex; flex-direction:column; gap:3px;}
+  .card-type-row{display:flex; justify-content:space-between; align-items:baseline; gap:6px; font-size:10px;}
+  .ct-name{font-weight:700; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .ct-metrics{font-family:'IBM Plex Mono',monospace; color:var(--text-faint); white-space:nowrap; flex-shrink:0;}
   .card-meta{display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:9px; border-top:1px solid var(--line-soft);}
   .card-meta span{font-size:11px; color:var(--text-faint);}
   .card-meta .peso{font-family:'IBM Plex Mono',monospace; color:var(--text-dim); font-weight:600;}
@@ -608,6 +618,7 @@
     color:var(--text); font-size:13px; font-family:'Inter',sans-serif; cursor:pointer;
   }
   #prodStatsBar{padding:0 24px; margin-top:14px;}
+  .prod-tipos-wrap{padding:20px 24px 0;}
   .prod-layout{
     display:grid; grid-template-columns:1fr 1fr; gap:20px; padding:20px 24px 60px; align-items:start;
   }
@@ -820,6 +831,11 @@
   </div>
 
   <div class="stats" id="prodStatsBar"></div>
+
+  <div class="prod-tipos-wrap">
+    <h3 class="prod-col-title">Resumo por tipologia de produto</h3>
+    <div id="prodTiposList"></div>
+  </div>
 
   <div class="prod-layout">
     <div class="prod-col">
@@ -1243,6 +1259,25 @@
     return (op.itens||[]).reduce((s,i)=> s + ((Number(i.L)||0) * (Number(i.H)||0) * (Number(i.qtde)||0)), 0);
   }
   function sumField(list, fn){ return list.reduce((s,op)=> s + fn(op), 0); }
+
+  // Agrupa os itens (de uma OP ou de várias) por tipo de produto (ex: GUARDA
+  // CORPO, PORTA...), somando peças, metros lineares, m² e peso de cada tipo.
+  // Usado no card, nas colunas do Kanban e no resumo geral de Acompanhamento.
+  function groupItemsByTipo(opsList){
+    const map = {};
+    opsList.forEach(op=>{
+      (op.itens||[]).forEach(it=>{
+        const tipo = (it.tipo || '').trim().toUpperCase() || 'SEM TIPO';
+        if(!map[tipo]) map[tipo] = {tipo, pecas:0, ml:0, m2:0, peso:0};
+        const qtde = Number(it.qtde)||0, L = Number(it.L)||0, H = Number(it.H)||0;
+        map[tipo].pecas += qtde;
+        map[tipo].ml += L * qtde;
+        map[tipo].m2 += L * H * qtde;
+        map[tipo].peso += Number(it.peso)||0;
+      });
+    });
+    return Object.values(map).sort((a,b)=> b.pecas - a.pecas);
+  }
   function parseDateBR(d){ return d ? new Date(d + 'T00:00:00') : null; }
   function fmtDateBR(d){
     if(!d) return '';
@@ -1299,6 +1334,7 @@
       col.dataset.status = st.key;
 
       const colOps = filtered.filter(o=>o.status===st.key);
+      const tiposCol = groupItemsByTipo(colOps);
 
       col.innerHTML = `
         <div class="col-head">
@@ -1307,9 +1343,28 @@
             <span class="col-count">${colOps.length}</span>
           </div>
           <div class="col-subtotal">${fmtNum(sumField(colOps, pecasTotal))} pçs &middot; ${fmtNum(sumField(colOps, mLinearTotal))} m</div>
+          ${tiposCol.length ? `
+          <button type="button" class="col-tipos-toggle no-print">▸ Ver por tipo (${tiposCol.length})</button>
+          <div class="col-tipos-list" style="display:none;">
+            ${tiposCol.map(t=>`
+              <div class="card-type-row">
+                <span class="ct-name">${escapeHtml(t.tipo)}</span>
+                <span class="ct-metrics">${fmtNum(t.pecas)}pç · ${fmtNum(t.ml)}m · ${fmtNum(t.m2)}m² · ${fmtNum(t.peso)}kg</span>
+              </div>`).join('')}
+          </div>` : ''}
         </div>
         <div class="col-body" data-status="${st.key}"></div>
       `;
+
+      const tiposToggle = $('.col-tipos-toggle', col);
+      if(tiposToggle){
+        tiposToggle.addEventListener('click', ()=>{
+          const list = $('.col-tipos-list', col);
+          const open = list.style.display !== 'none';
+          list.style.display = open ? 'none' : 'flex';
+          tiposToggle.textContent = (open ? '▸' : '▾') + ' Ver por tipo (' + tiposCol.length + ')';
+        });
+      }
 
       const body = $('.col-body', col);
       if(colOps.length === 0){
@@ -1351,6 +1406,7 @@
     const pecas = pecasTotal(op);
     const mLinear = mLinearTotal(op);
     const nItens = (op.itens||[]).length;
+    const tiposOp = groupItemsByTipo([op]);
 
     card.innerHTML = `
       <div class="card-top">
@@ -1365,6 +1421,14 @@
         <div class="fig"><div class="fig-num">${fmtNum(pecas)}</div><div class="fig-lbl">Peças</div></div>
         <div class="fig"><div class="fig-num">${fmtNum(mLinear)} m</div><div class="fig-lbl">Linear</div></div>
       </div>
+      ${tiposOp.length > 1 ? `
+      <div class="card-types">
+        ${tiposOp.map(t=>`
+          <div class="card-type-row">
+            <span class="ct-name">${escapeHtml(t.tipo)}</span>
+            <span class="ct-metrics">${fmtNum(t.pecas)}pç · ${fmtNum(t.ml)}m · ${fmtNum(t.m2)}m² · ${fmtNum(t.peso)}kg</span>
+          </div>`).join('')}
+      </div>` : ''}
       <div class="card-meta">
         <span>${nItens} ${nItens===1?'item':'itens'}</span>
         <span class="peso">${fmtNum(peso)} kg</span>
@@ -1832,6 +1896,32 @@
         <div class="stat"><div class="num">${totalApontamentos}</div><div class="lbl">Apontamentos</div></div>
         <div class="stat stat-hero"><div class="num">${fmtNum(feitoPecas)} / ${fmtNum(totalPecas)}</div><div class="lbl">Peças produzidas</div></div>
       `;
+    }
+
+    // -------- resumo por tipologia de produto (soma de todas as OPs do filtro) --------
+    const tiposWrap = $('#prodTiposList');
+    if(tiposWrap){
+      const tipos = groupItemsByTipo(source);
+      if(tipos.length===0){
+        tiposWrap.innerHTML = '<div class="colab-empty">Nenhum item cadastrado para esse filtro.</div>';
+      } else {
+        tiposWrap.innerHTML = `
+          <div class="prod-apont-wrap">
+            <table class="prod-apont-table">
+              <thead><tr><th>Tipologia</th><th>Peças</th><th>M Linear</th><th>M²</th><th>Peso</th></tr></thead>
+              <tbody>
+                ${tipos.map(t=>`
+                  <tr>
+                    <td class="pa-op">${escapeHtml(t.tipo)}</td>
+                    <td class="pa-qtde">${fmtNum(t.pecas)}</td>
+                    <td>${fmtNum(t.ml)} m</td>
+                    <td>${fmtNum(t.m2)} m²</td>
+                    <td>${fmtNum(t.peso)} kg</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      }
     }
 
     // -------- status por OP --------
