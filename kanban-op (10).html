@@ -114,15 +114,20 @@
   /* ---------- Card ---------- */
   .card{
     background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:12px 13px;
-    cursor:grab; transition:.12s; position:relative; overflow:hidden;
+    cursor:grab; transition:.15s; position:relative; overflow:hidden;
   }
   .card:hover{border-color:#50555d; transform:translateY(-1px); box-shadow:var(--shadow);}
   .card:active{cursor:grabbing;}
   .card::before{
-    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:var(--card-accent, var(--line));
   }
-  .card.mat-ferro::before{background:var(--ferro);}
-  .card.mat-aluminio::before{background:var(--alu);}
+  .card::after{
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+    background:linear-gradient(135deg, var(--card-accent, transparent) 0%, transparent 55%);
+    opacity:0.10;
+  }
+  .card-top, .card-obra, .card-cliente, .card-etapa, .card-colab, .card-figures, .card-meta, .card-actions{position:relative; z-index:1;}
   .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
   .card-code{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px;}
   .mat-badge{
@@ -1146,6 +1151,9 @@
     card.className = 'card mat-' + (op.material==='FERRO'?'ferro':'aluminio');
     card.draggable = true;
     card.dataset.id = op.id;
+
+    const stColor = (STATUSES[statusIdx] && STATUSES[statusIdx].dot) || '#9AA0A6';
+    card.style.setProperty('--card-accent', stColor);
 
     const peso = pesoTotal(op);
     const pecas = pecasTotal(op);
