@@ -2462,15 +2462,23 @@ ${bodyHtml}
     if(!wrap) return;
     wrap.innerHTML = acessosCatalogo.length ? acessosCatalogo.map(a=> `
       <div class="cad-row">
-        <span><strong>${escapeHtml(a.nome)}</strong> — ${a.papel==='admin'?'Administrador':'Colaborador'} — PIN: ${escapeHtml(a.pin)}</span>
+        <span>
+          <strong>${escapeHtml(a.nome)}</strong>
+          <span class="colab-status-badge" style="background:${a.papel==='admin'?'#FC4F1322':'#0E86C422'}; color:${a.papel==='admin'?'#FC4F13':'#0E86C4'}; margin:0 6px;">${a.papel==='admin'?'Administrador':'Colaborador'}</span>
+          PIN: ${escapeHtml(a.pin)}
+        </span>
         <button type="button" class="cad-rm" data-id="${a.id}" title="Remover">&times;</button>
       </div>`).join('') : '<div class="colab-empty">Nenhum acesso cadastrado.</div>';
 
     $$('.cad-rm', wrap).forEach(btn=>{
       btn.addEventListener('click', async ()=>{
-        if(acessosCatalogo.length <= 1){ toast('Não é possível remover o último acesso cadastrado.'); return; }
         const acesso = acessosCatalogo.find(a=> a.id === btn.dataset.id);
         if(!acesso) return;
+        const totalAdmins = acessosCatalogo.filter(a=> a.papel === 'admin').length;
+        if(acesso.papel === 'admin' && totalAdmins <= 1){
+          toast('Não é possível remover o único Administrador cadastrado — cadastre outro admin antes de remover este.');
+          return;
+        }
         const ok = await showConfirm(`Remover o acesso de "${acesso.nome}"?`, {title:'Remover acesso', okLabel:'Remover'});
         if(!ok) return;
         acessosCatalogo = acessosCatalogo.filter(a=> a.id !== btn.dataset.id);
