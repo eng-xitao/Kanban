@@ -2149,7 +2149,6 @@ ${bodyHtml}
   // A soma desses apontamentos é o quanto já foi produzido daquele item — isso
   // permite registrar produção/entrega parcial ao longo do tempo, já que nem
   // sempre a OP inteira é concluída de uma vez.
-  const LAST_NAME_KEY = 'kanbanop_last_colab_name';
 
   function itemQtdeProduzida(it){
     return ((it.apontamentos)||[]).reduce((s,a)=> s + (Number(a.qtde)||0), 0);
@@ -2234,7 +2233,6 @@ ${bodyHtml}
       return;
     }
 
-    const lastName = localStorage.getItem(LAST_NAME_KEY) || '';
     const today = new Date().toISOString().slice(0,10);
 
     wrap.innerHTML = list.map(op=>{
@@ -2274,7 +2272,7 @@ ${bodyHtml}
             <div class="colab-apont-form">
               <label class="colab-field"><span>Data</span><input type="date" class="ap-data" value="${today}"></label>
               <label class="colab-field"><span>Peças produzidas</span><input type="number" class="ap-qtde" min="1" max="${restante}" placeholder="máx ${fmtNum(restante)}"></label>
-              <label class="colab-field"><span>Colaborador</span><input type="text" class="ap-nome" value="${escapeHtml(lastName)}" placeholder="Seu nome"></label>
+              <label class="colab-field"><span>Colaborador</span><input type="text" class="ap-nome" value="" placeholder="Seu nome"></label>
               <button type="button" class="colab-apont-add-btn" data-op="${op.id}" data-idx="${idx}">+ Registrar</button>
             </div>` : ''}
           </div>`;
@@ -2343,7 +2341,6 @@ ${bodyHtml}
 
         if(!it.apontamentos) it.apontamentos = [];
         it.apontamentos.push({data: dataVal, qtde: qtdeVal, colaborador: nomeVal});
-        localStorage.setItem(LAST_NAME_KEY, nomeVal);
 
         await saveOp(op, true);
         toast('Apontamento registrado — ' + op.codigo);
