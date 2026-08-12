@@ -158,8 +158,8 @@
   }
   .card::after{
     content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
-    background:linear-gradient(135deg, var(--card-accent, transparent) 0%, transparent 55%);
-    opacity:0.10;
+    background:linear-gradient(135deg, var(--card-accent, transparent) 0%, transparent 60%);
+    opacity:0.14;
   }
   .card-top, .card-obra, .card-cliente, .card-etapa, .card-colab, .card-figures, .card-meta, .card-actions{position:relative; z-index:1;}
   .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
@@ -582,13 +582,13 @@
   .colab-apont-form{display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-top:6px;}
   .colab-field{display:flex; flex-direction:column; gap:3px;}
   .colab-field span{font-size:9.5px; text-transform:uppercase; color:var(--text-faint); font-weight:700;}
-  .colab-field input{
+  .colab-field input, .colab-field select{
     background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:7px 9px;
     color:var(--text); font-size:12.5px; font-family:'Inter',sans-serif; color-scheme:light;
   }
-  .colab-field input[type="text"]{width:130px;}
+  .colab-field input[type="text"], .colab-field select{width:150px;}
   .colab-field input[type="number"]{width:80px;}
-  .colab-field input:focus{outline:none; border-color:var(--amber);}
+  .colab-field input:focus, .colab-field select:focus{outline:none; border-color:var(--amber);}
   .colab-apont-add-btn{
     background:var(--amber); color:#1a1200; border:none; border-radius:6px; padding:8px 14px;
     font-size:12.5px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;
@@ -2668,6 +2668,25 @@ ${bodyHtml}
   function itemQtdeProduzida(it){
     return ((it.apontamentos)||[]).reduce((s,a)=> s + (Number(a.qtde)||0), 0);
   }
+
+  // Monta a lista de colaboradores pra selecionar no apontamento, a partir do
+  // cadastro de Acessos (aba Cadastros). Pré-seleciona quem está logado agora,
+  // se ele estiver na lista, mas permite trocar — útil quando várias pessoas
+  // usam o mesmo login/tablet.
+  function colabSelectHtml(){
+    const nomes = acessosCatalogo
+      .filter(a=> a.papel === 'colaborador')
+      .map(a=> a.nome)
+      .filter((n, idx, arr)=> n && arr.indexOf(n) === idx)
+      .sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+
+    if(nomes.length === 0){
+      return `<input type="text" class="ap-nome-manual" placeholder="Nome do colaborador">`;
+    }
+    const atual = currentUser && currentUser.nome;
+    const options = nomes.map(n=> `<option value="${escapeHtml(n)}" ${n===atual?'selected':''}>${escapeHtml(n)}</option>`).join('');
+    return `<select class="ap-colab-select">${options}</select>`;
+  }
   function itemStatus(it){
     const total = Number(it.qtde)||0;
     const feito = itemQtdeProduzida(it);
@@ -2813,7 +2832,7 @@ ${bodyHtml}
             <div class="colab-apont-form">
               <label class="colab-field"><span>Data</span><input type="date" class="ap-data" value="${today}"></label>
               <label class="colab-field"><span>Peças produzidas</span><input type="number" class="ap-qtde" min="1" max="${restante}" placeholder="máx ${fmtNum(restante)}"></label>
-              <span class="colab-apont-user">👤 Registrando como <strong>${escapeHtml((currentUser&&currentUser.nome)||'—')}</strong></span>
+              <label class="colab-field"><span>Colaborador</span>${colabSelectHtml()}</label>
               <button type="button" class="colab-apont-add-btn" data-op="${op.id}" data-idx="${idx}">+ Registrar</button>
             </div>` : ''}
           </div>`;
@@ -2863,11 +2882,13 @@ ${bodyHtml}
         const block = btn.closest('.colab-item-block');
         const dataVal = $('.ap-data', block).value;
         const qtdeVal = parseFloat($('.ap-qtde', block).value);
-        const nomeVal = (currentUser && currentUser.nome) ? currentUser.nome.trim() : '';
+        const colabSelect = $('.ap-colab-select', block);
+        const colabManual = $('.ap-nome-manual', block);
+        const nomeVal = colabSelect ? colabSelect.value.trim() : (colabManual ? colabManual.value.trim() : '');
 
         if(!dataVal){ toast('Informe a data.'); return; }
         if(!qtdeVal || qtdeVal <= 0){ toast('Informe a quantidade de peças produzidas.'); return; }
-        if(!nomeVal){ toast('Não foi possível identificar seu usuário. Saia e entre novamente.'); return; }
+        if(!nomeVal){ toast('Selecione ou informe o colaborador responsável.'); return; }
 
         const total = Number(it.qtde)||0;
         const jaFeito = itemQtdeProduzida(it);
