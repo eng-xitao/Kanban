@@ -952,7 +952,7 @@
           <thead>
             <tr>
               <th style="width:15%">Tipo</th>
-              <th class="col-desc" style="width:32%">Descrição</th>
+              <th class="col-desc" style="width:32%">Tipologia</th>
               <th style="width:10%">Qtde</th>
               <th style="width:12%">L (mm)</th>
               <th style="width:12%">H (mm)</th>
@@ -1267,7 +1267,7 @@
     const map = {};
     opsList.forEach(op=>{
       (op.itens||[]).forEach(it=>{
-        const tipo = (it.tipo || '').trim().toUpperCase() || 'SEM TIPO';
+        const tipo = (it.descricao || '').trim().toUpperCase() || 'SEM TIPOLOGIA';
         if(!map[tipo]) map[tipo] = {tipo, pecas:0, ml:0, m2:0, peso:0};
         const qtde = Number(it.qtde)||0, L = Number(it.L)||0, H = Number(it.H)||0;
         map[tipo].pecas += qtde;
@@ -1406,7 +1406,6 @@
     const pecas = pecasTotal(op);
     const mLinear = mLinearTotal(op);
     const nItens = (op.itens||[]).length;
-    const tiposOp = groupItemsByTipo([op]);
 
     card.innerHTML = `
       <div class="card-top">
@@ -1421,14 +1420,6 @@
         <div class="fig"><div class="fig-num">${fmtNum(pecas)}</div><div class="fig-lbl">Peças</div></div>
         <div class="fig"><div class="fig-num">${fmtNum(mLinear)} m</div><div class="fig-lbl">Linear</div></div>
       </div>
-      ${tiposOp.length > 1 ? `
-      <div class="card-types">
-        ${tiposOp.map(t=>`
-          <div class="card-type-row">
-            <span class="ct-name">${escapeHtml(t.tipo)}</span>
-            <span class="ct-metrics">${fmtNum(t.pecas)}pç · ${fmtNum(t.ml)}m · ${fmtNum(t.m2)}m² · ${fmtNum(t.peso)}kg</span>
-          </div>`).join('')}
-      </div>` : ''}
       <div class="card-meta">
         <span>${nItens} ${nItens===1?'item':'itens'}</span>
         <span class="peso">${fmtNum(peso)} kg</span>
@@ -2091,8 +2082,8 @@
     const tr = document.createElement('tr');
     tr.dataset.rowid = itemUid();
     tr.innerHTML = `
-      <td><input type="text" class="it-tipo" list="produtosDatalist" value="${escapeHtml(data.tipo||'')}" placeholder="TIPO"></td>
-      <td class="col-desc"><input type="text" class="it-desc" value="${escapeHtml(data.descricao||'')}" placeholder="Descrição"></td>
+      <td><input type="text" class="it-tipo" value="${escapeHtml(data.tipo||'')}" placeholder="TIPO"></td>
+      <td class="col-desc"><input type="text" class="it-desc" list="produtosDatalist" value="${escapeHtml(data.descricao||'')}" placeholder="Tipologia"></td>
       <td class="col-num"><input type="number" class="it-qtde" value="${data.qtde!=null?data.qtde:''}" min="0" step="1"></td>
       <td class="col-num"><input type="number" class="it-L" value="${data.L!=null?data.L:''}" step="any"></td>
       <td class="col-num"><input type="number" class="it-H" value="${data.H!=null?data.H:''}" step="any"></td>
@@ -2277,7 +2268,7 @@
         <div class="detail-label">Itens (${(op.itens||[]).length})</div>
         <div class="table-scroll">
         <table class="items-view">
-          <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Produzido</th><th>Colaboradores</th></tr></thead>
+          <thead><tr><th>Tipo</th><th>Tipologia</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Produzido</th><th>Colaboradores</th></tr></thead>
           <tbody>${itemsRows || '<tr><td colspan="8" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
           <tfoot>
             <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td><td colspan="2"></td></tr>
