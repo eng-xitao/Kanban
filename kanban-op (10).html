@@ -468,22 +468,73 @@
   .colab-op-card.open .colab-chevron{transform:rotate(90deg);}
   .colab-items-body{display:none; border-top:1px solid var(--line);}
   .colab-op-card.open .colab-items-body{display:block;}
-  .colab-item-row{
-    padding:12px 16px; border-bottom:1px solid var(--line-soft); display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  /* ---------- Colaborador mode ---------- */
+  .colab-header{
+    padding:20px 24px 16px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
   }
-  .colab-item-row:last-child{border-bottom:none;}
+  .colab-header .toolbar{margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .colab-header .stats{margin-top:14px;}
+  .colab-list-wrap{padding:20px 24px 60px; max-width:960px; margin:0 auto;}
+  .colab-op-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; margin-bottom:14px; overflow:hidden;
+  }
+  .colab-op-head{
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; gap:12px; flex-wrap:wrap;
+  }
+  .colab-op-head:hover{background:var(--panel-2);}
+  .colab-op-title{display:flex; align-items:center; gap:10px; flex:1; min-width:220px;}
+  .colab-op-code{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:14px;}
+  .colab-op-sub{font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .colab-op-progress-wrap{display:flex; align-items:center; gap:10px; min-width:160px;}
+  .colab-op-bar{width:90px; height:7px; border-radius:4px; background:var(--panel-2); border:1px solid var(--line); overflow:hidden; flex-shrink:0;}
+  .colab-op-bar-fill{height:100%; background:var(--amber); border-radius:4px;}
+  .colab-op-bar-fill.complete{background:var(--ok);}
+  .colab-op-pct{font-size:11.5px; font-weight:700; color:var(--text-dim); white-space:nowrap;}
+  .colab-status-badge{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:3px 8px; border-radius:20px; white-space:nowrap;}
+  .colab-status-badge.pendente{background:#3a3d41; color:#d9dcdf;}
+  .colab-status-badge.parcial{background:#4a3620; color:var(--amber);}
+  .colab-status-badge.completo{background:#1c3a28; color:var(--ok);}
+  .colab-chevron{color:var(--text-faint); font-size:13px; transition:.15s;}
+  .colab-op-card.open .colab-chevron{transform:rotate(90deg);}
+  .colab-items-body{display:none; border-top:1px solid var(--line);}
+  .colab-op-card.open .colab-items-body{display:block;}
+  .colab-item-block{padding:14px 16px; border-bottom:1px solid var(--line-soft);}
+  .colab-item-block:last-child{border-bottom:none;}
+  .colab-item-top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px;}
   .colab-item-info{flex:1; min-width:160px;}
   .colab-item-tipo{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px;}
   .colab-item-desc{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
-  .colab-item-fields{display:flex; gap:8px; flex-wrap:wrap;}
+  .colab-item-progress{display:flex; align-items:center; gap:8px;}
+  .colab-item-bar{width:100px; height:6px; border-radius:3px; background:var(--panel-2); border:1px solid var(--line); overflow:hidden; flex-shrink:0;}
+  .colab-item-bar-fill{height:100%; background:var(--amber); border-radius:3px;}
+  .colab-item-bar-fill.complete{background:var(--ok);}
+  .colab-item-count{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim); white-space:nowrap;}
+  .colab-apont-list{margin:8px 0; display:flex; flex-direction:column; gap:4px;}
+  .colab-apont-row{
+    display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--text-dim);
+    background:var(--panel-2); border:1px solid var(--line-soft); border-radius:6px; padding:5px 9px;
+  }
+  .colab-apont-row .aq{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--text);}
+  .colab-apont-row .ad{color:var(--text-faint);}
+  .colab-apont-row .an{flex:1;}
+  .colab-apont-rm{background:none; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:0 3px; flex-shrink:0;}
+  .colab-apont-form{display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-top:6px;}
   .colab-field{display:flex; flex-direction:column; gap:3px;}
   .colab-field span{font-size:9.5px; text-transform:uppercase; color:var(--text-faint); font-weight:700;}
   .colab-field input{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:6px 8px;
-    color:var(--text); font-size:12px; font-family:'Inter',sans-serif; color-scheme:dark;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:7px 9px;
+    color:var(--text); font-size:12.5px; font-family:'Inter',sans-serif; color-scheme:dark;
   }
-  .colab-field input[type="text"]{width:120px;}
+  .colab-field input[type="text"]{width:130px;}
+  .colab-field input[type="number"]{width:80px;}
   .colab-field input:focus{outline:none; border-color:var(--amber);}
+  .colab-apont-add-btn{
+    background:var(--amber); color:#1a1200; border:none; border-radius:6px; padding:8px 14px;
+    font-size:12.5px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .colab-apont-add-btn:hover{background:#ffbe57;}
+  .colab-item-complete-tag{font-size:11px; font-weight:700; color:var(--ok);}
   .colab-empty{text-align:center; padding:60px 20px; color:var(--text-faint); font-size:13px;}
 </style>
 </head>
@@ -524,7 +575,7 @@
       <div class="brand">
         <div class="login-mark" style="width:30px;height:30px;"></div>
         <div>
-          <h1>Produção — Modo Colaborador</h1>
+          <h1>Apontamento de Produção</h1>
           <p id="colabWelcome">Ordens de Produção — Ferro &amp; Alumínio</p>
         </div>
       </div>
@@ -534,7 +585,14 @@
     </div>
     <div class="toolbar">
       <input class="search" id="colabSearchInput" type="text" placeholder="Buscar por código, cliente ou obra...">
+      <div class="filters" id="colabStatusFilters">
+        <button class="filter-btn active" data-status="todas">Todas</button>
+        <button class="filter-btn" data-status="pendente">Pendentes</button>
+        <button class="filter-btn" data-status="parcial">Em produção</button>
+        <button class="filter-btn" data-status="completo">Concluídas</button>
+      </div>
     </div>
+    <div class="stats" id="colabStatsBar"></div>
   </header>
   <div class="colab-list-wrap">
     <div id="colabOpList"></div>
@@ -1662,7 +1720,11 @@
     const mLinear = mLinearTotal(op);
     const statusIdx = STATUSES.findIndex(s=>s.key===op.status);
 
-    const itemsRows = (op.itens||[]).map(it=>`
+    const itemsRows = (op.itens||[]).map(it=>{
+      const produzido = itemQtdeProduzida(it);
+      const totalIt = Number(it.qtde)||0;
+      const colaboradores = Array.from(new Set(((it.apontamentos)||[]).map(a=>a.colaborador).filter(Boolean)));
+      return `
       <tr>
         <td>${escapeHtml(it.tipo)}</td>
         <td style="font-family:'Inter',sans-serif;">${escapeHtml(it.descricao)}</td>
@@ -1670,10 +1732,10 @@
         <td>${fmtNum(it.L)}</td>
         <td>${fmtNum(it.H)}</td>
         <td>${fmtNum(it.peso)}</td>
-        <td>${it.dataInicioItem ? fmtDateBR(it.dataInicioItem) : '—'}</td>
-        <td>${it.dataTerminoItem ? fmtDateBR(it.dataTerminoItem) : '—'}</td>
-        <td style="font-family:'Inter',sans-serif;">${escapeHtml(it.colaboradorItem)||'—'}</td>
-      </tr>`).join('');
+        <td style="color:${produzido>=totalIt && totalIt>0 ? 'var(--ok)' : 'var(--amber)'};">${fmtNum(produzido)} / ${fmtNum(totalIt)}</td>
+        <td style="font-family:'Inter',sans-serif;">${colaboradores.length ? escapeHtml(colaboradores.join(', ')) : '—'}</td>
+      </tr>`;
+    }).join('');
 
     $('#viewBody').innerHTML = `
       <div class="detail-section">
@@ -1746,10 +1808,10 @@
       <div class="detail-section">
         <div class="detail-label">Itens (${(op.itens||[]).length})</div>
         <table class="items-view">
-          <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Início item</th><th>Término item</th><th>Colaborador</th></tr></thead>
-          <tbody>${itemsRows || '<tr><td colspan="9" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
+          <thead><tr><th>Tipo</th><th>Descrição</th><th>Qtde</th><th>L (mm)</th><th>H (mm)</th><th>Peso</th><th>Produzido</th><th>Colaboradores</th></tr></thead>
+          <tbody>${itemsRows || '<tr><td colspan="8" style="color:var(--text-faint); font-family:Inter,sans-serif;">Nenhum item cadastrado</td></tr>'}</tbody>
           <tfoot>
-            <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td><td colspan="3"></td></tr>
+            <tr><td colspan="2">Totais</td><td>${fmtNum(pecas)} pçs</td><td colspan="2">${fmtNum(mLinear)} m linear</td><td>${fmtNum(peso)} kg</td><td colspan="2"></td></tr>
           </tfoot>
         </table>
       </div>
@@ -2081,46 +2143,143 @@ ${bodyHtml}
   $('#btnColabLogout').addEventListener('click', doLogout);
 
   // ================================================================
-  // MODO COLABORADOR
+  // MODO COLABORADOR — Apontamento de Produção
   // ================================================================
+  // Cada item passa a ter um "log" de apontamentos: [{data, qtde, colaborador}, ...]
+  // A soma desses apontamentos é o quanto já foi produzido daquele item — isso
+  // permite registrar produção/entrega parcial ao longo do tempo, já que nem
+  // sempre a OP inteira é concluída de uma vez.
+  const LAST_NAME_KEY = 'kanbanop_last_colab_name';
+
+  function itemQtdeProduzida(it){
+    return ((it.apontamentos)||[]).reduce((s,a)=> s + (Number(a.qtde)||0), 0);
+  }
+  function itemStatus(it){
+    const total = Number(it.qtde)||0;
+    const feito = itemQtdeProduzida(it);
+    if(feito <= 0) return 'pendente';
+    if(feito >= total && total > 0) return 'completo';
+    return 'parcial';
+  }
+  function opProgress(op){
+    let total = 0, feito = 0;
+    (op.itens||[]).forEach(it=>{
+      total += Number(it.qtde)||0;
+      feito += itemQtdeProduzida(it);
+    });
+    return {total, feito, pct: total>0 ? Math.min(100, Math.round(feito/total*100)) : 0};
+  }
+  function opStatus(op){
+    const {total, feito} = opProgress(op);
+    if(feito <= 0) return 'pendente';
+    if(total>0 && feito >= total) return 'completo';
+    return 'parcial';
+  }
+  const STATUS_LABEL = {pendente:'Pendente', parcial:'Em produção', completo:'Concluída'};
+
   let colabSearchTerm = '';
+  let colabStatusFilter = 'todas';
+
   $('#colabSearchInput').addEventListener('input', ()=>{
     colabSearchTerm = $('#colabSearchInput').value.trim().toLowerCase();
+    renderColabList();
+  });
+  $('#colabStatusFilters').addEventListener('click', e=>{
+    const btn = e.target.closest('.filter-btn');
+    if(!btn) return;
+    $$('.filter-btn', $('#colabStatusFilters')).forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    colabStatusFilter = btn.dataset.status;
     renderColabList();
   });
 
   async function loadColabView(){
     await loadAll(); // reaproveita o carregamento de dados; o quadro admin fica oculto
+    renderColabStats();
     renderColabList();
+  }
+
+  function renderColabStats(){
+    const bar = $('#colabStatsBar');
+    if(!bar) return;
+    let totalPecas = 0, feitoPecas = 0, pendentes = 0, parciais = 0, completas = 0;
+    ops.forEach(op=>{
+      const p = opProgress(op);
+      totalPecas += p.total; feitoPecas += p.feito;
+      const st = opStatus(op);
+      if(st==='pendente') pendentes++; else if(st==='parcial') parciais++; else completas++;
+    });
+    bar.innerHTML = `
+      <div class="stat"><div class="num">${ops.length}</div><div class="lbl">OPs totais</div></div>
+      <div class="stat"><div class="num">${pendentes}</div><div class="lbl">Pendentes</div></div>
+      <div class="stat"><div class="num" style="color:var(--amber)">${parciais}</div><div class="lbl">Em produção</div></div>
+      <div class="stat"><div class="num" style="color:var(--ok)">${completas}</div><div class="lbl">Concluídas</div></div>
+      <div class="stat stat-hero"><div class="num">${fmtNum(feitoPecas)} / ${fmtNum(totalPecas)}</div><div class="lbl">Peças produzidas</div></div>
+    `;
   }
 
   function renderColabList(){
     const wrap = $('#colabOpList');
     if(!wrap) return;
+
     const list = ops.filter(op=>{
+      if(colabStatusFilter !== 'todas' && opStatus(op) !== colabStatusFilter) return false;
       if(!colabSearchTerm) return true;
       const hay = (op.codigo+' '+op.cliente+' '+op.obra).toLowerCase();
       return hay.includes(colabSearchTerm);
     });
 
     if(list.length===0){
-      wrap.innerHTML = '<div class="colab-empty">Nenhuma OP encontrada.</div>';
+      wrap.innerHTML = '<div class="colab-empty">Nenhuma OP encontrada para esse filtro.</div>';
       return;
     }
 
+    const lastName = localStorage.getItem(LAST_NAME_KEY) || '';
+    const today = new Date().toISOString().slice(0,10);
+
     wrap.innerHTML = list.map(op=>{
-      const itemsHtml = (op.itens||[]).map((it,idx)=>`
-        <div class="colab-item-row">
-          <div class="colab-item-info">
-            <div class="colab-item-tipo">${escapeHtml(it.tipo || ('Item ' + (idx+1)))}</div>
-            <div class="colab-item-desc">${escapeHtml(it.descricao||'')} · ${fmtNum(it.qtde)} pçs</div>
-          </div>
-          <div class="colab-item-fields">
-            <label class="colab-field"><span>Início</span><input type="date" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="dataInicioItem" value="${it.dataInicioItem||''}"></label>
-            <label class="colab-field"><span>Término</span><input type="date" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="dataTerminoItem" value="${it.dataTerminoItem||''}"></label>
-            <label class="colab-field"><span>Colaborador</span><input type="text" class="colab-it-input" data-op="${op.id}" data-idx="${idx}" data-field="colaboradorItem" value="${escapeHtml(it.colaboradorItem||'')}" placeholder="Nome"></label>
-          </div>
-        </div>`).join('');
+      const prog = opProgress(op);
+      const st = opStatus(op);
+
+      const itemsHtml = (op.itens||[]).map((it,idx)=>{
+        const total = Number(it.qtde)||0;
+        const feito = itemQtdeProduzida(it);
+        const pct = total>0 ? Math.min(100, Math.round(feito/total*100)) : 0;
+        const iSt = itemStatus(it);
+        const restante = Math.max(0, total - feito);
+
+        const apontRows = (it.apontamentos||[]).map((a,aIdx)=>`
+          <div class="colab-apont-row">
+            <span class="ad">${fmtDateBR(a.data)}</span>
+            <span class="aq">+${fmtNum(a.qtde)} pçs</span>
+            <span class="an">${escapeHtml(a.colaborador||'—')}</span>
+            <button type="button" class="colab-apont-rm" data-op="${op.id}" data-idx="${idx}" data-apidx="${aIdx}" title="Remover apontamento">&times;</button>
+          </div>`).join('');
+
+        return `
+          <div class="colab-item-block" data-op="${op.id}" data-idx="${idx}">
+            <div class="colab-item-top">
+              <div class="colab-item-info">
+                <div class="colab-item-tipo">${escapeHtml(it.tipo || ('Item ' + (idx+1)))}</div>
+                <div class="colab-item-desc">${escapeHtml(it.descricao||'')}</div>
+              </div>
+              <div class="colab-item-progress">
+                ${iSt==='completo' ? '<span class="colab-item-complete-tag">✓ Completo</span>' : ''}
+                <div class="colab-item-bar"><div class="colab-item-bar-fill ${iSt==='completo'?'complete':''}" style="width:${pct}%;"></div></div>
+                <span class="colab-item-count">${fmtNum(feito)} / ${fmtNum(total)} pçs</span>
+              </div>
+            </div>
+            ${apontRows ? `<div class="colab-apont-list">${apontRows}</div>` : ''}
+            ${iSt!=='completo' ? `
+            <div class="colab-apont-form">
+              <label class="colab-field"><span>Data</span><input type="date" class="ap-data" value="${today}"></label>
+              <label class="colab-field"><span>Peças produzidas</span><input type="number" class="ap-qtde" min="1" max="${restante}" placeholder="máx ${fmtNum(restante)}"></label>
+              <label class="colab-field"><span>Colaborador</span><input type="text" class="ap-nome" value="${escapeHtml(lastName)}" placeholder="Seu nome"></label>
+              <button type="button" class="colab-apont-add-btn" data-op="${op.id}" data-idx="${idx}">+ Registrar</button>
+            </div>` : ''}
+          </div>`;
+      }).join('');
+
       return `
         <div class="colab-op-card" data-op="${op.id}">
           <div class="colab-op-head">
@@ -2131,9 +2290,14 @@ ${bodyHtml}
                 <div class="colab-op-sub">${escapeHtml(op.obra||'—')} · ${escapeHtml(op.cliente||'—')}</div>
               </div>
             </div>
+            <div class="colab-op-progress-wrap">
+              <span class="colab-status-badge ${st}">${STATUS_LABEL[st]}</span>
+              <div class="colab-op-bar"><div class="colab-op-bar-fill ${st==='completo'?'complete':''}" style="width:${prog.pct}%;"></div></div>
+              <span class="colab-op-pct">${fmtNum(prog.feito)}/${fmtNum(prog.total)}</span>
+            </div>
             <span class="colab-chevron">▶</span>
           </div>
-          <div class="colab-items-body">${itemsHtml || '<div class="colab-item-row">Nenhum item cadastrado nesta OP.</div>'}</div>
+          <div class="colab-items-body">${itemsHtml || '<div class="colab-item-block">Nenhum item cadastrado nesta OP.</div>'}</div>
         </div>`;
     }).join('');
 
@@ -2143,16 +2307,74 @@ ${bodyHtml}
       });
     });
 
-    $$('.colab-it-input', wrap).forEach(inp=>{
-      inp.addEventListener('click', e=> e.stopPropagation());
-      inp.addEventListener('change', async ()=>{
-        const op = ops.find(o=>o.id===inp.dataset.op);
+    // impede que clicar nos campos feche o card sem querer
+    $$('.colab-apont-form, .colab-apont-list', wrap).forEach(el=>{
+      el.addEventListener('click', e=> e.stopPropagation());
+    });
+
+    $$('.colab-apont-add-btn', wrap).forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const op = ops.find(o=>o.id===btn.dataset.op);
         if(!op || !op.itens) return;
-        const idx = parseInt(inp.dataset.idx, 10);
-        if(!op.itens[idx]) return;
-        op.itens[idx][inp.dataset.field] = inp.value;
+        const idx = parseInt(btn.dataset.idx, 10);
+        const it = op.itens[idx];
+        if(!it) return;
+
+        const block = btn.closest('.colab-item-block');
+        const dataVal = $('.ap-data', block).value;
+        const qtdeVal = parseFloat($('.ap-qtde', block).value);
+        const nomeVal = $('.ap-nome', block).value.trim();
+
+        if(!dataVal){ toast('Informe a data.'); return; }
+        if(!qtdeVal || qtdeVal <= 0){ toast('Informe a quantidade de peças produzidas.'); return; }
+        if(!nomeVal){ toast('Informe o nome do colaborador.'); return; }
+
+        const total = Number(it.qtde)||0;
+        const jaFeito = itemQtdeProduzida(it);
+        const restante = total - jaFeito;
+        if(qtdeVal > restante && total > 0){
+          const ok = await showConfirm(
+            `Você registrou ${fmtNum(qtdeVal)} peças, mas só restam ${fmtNum(restante)} para completar este item. Registrar mesmo assim?`,
+            {title:'Quantidade maior que o restante', okLabel:'Registrar assim mesmo'}
+          );
+          if(!ok) return;
+        }
+
+        if(!it.apontamentos) it.apontamentos = [];
+        it.apontamentos.push({data: dataVal, qtde: qtdeVal, colaborador: nomeVal});
+        localStorage.setItem(LAST_NAME_KEY, nomeVal);
+
         await saveOp(op, true);
-        toast('Salvo — ' + op.codigo);
+        toast('Apontamento registrado — ' + op.codigo);
+        renderColabStats();
+        renderColabList();
+        // reabre o card da OP que estava sendo editada, pra não perder o lugar
+        const card = $(`.colab-op-card[data-op="${op.id}"]`);
+        if(card) card.classList.add('open');
+      });
+    });
+
+    $$('.colab-apont-rm', wrap).forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const op = ops.find(o=>o.id===btn.dataset.op);
+        if(!op || !op.itens) return;
+        const idx = parseInt(btn.dataset.idx, 10);
+        const apIdx = parseInt(btn.dataset.apidx, 10);
+        const it = op.itens[idx];
+        if(!it || !it.apontamentos || !it.apontamentos[apIdx]) return;
+
+        const ok = await showConfirm('Remover este apontamento?', {title:'Remover', okLabel:'Remover'});
+        if(!ok) return;
+
+        it.apontamentos.splice(apIdx, 1);
+        await saveOp(op, true);
+        toast('Apontamento removido.');
+        renderColabStats();
+        renderColabList();
+        const card = $(`.colab-op-card[data-op="${op.id}"]`);
+        if(card) card.classList.add('open');
       });
     });
   }
