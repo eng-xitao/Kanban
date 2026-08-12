@@ -72,13 +72,22 @@
     padding:9px 12px; color:var(--text); font-size:13.5px; font-family:'Inter',sans-serif;
   }
   .search::placeholder{color:var(--text-faint);}
-  .filters{display:flex; gap:6px; background:var(--panel-2); padding:4px; border-radius:9px; border:1px solid var(--line);}
+  .filters{display:flex; gap:6px; background:var(--panel-2); padding:4px; border-radius:9px; border:1px solid var(--line); overflow-x:auto;}
   .filter-btn{
     border:none; background:transparent; color:var(--text-dim); padding:7px 13px; border-radius:6px;
     font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Inter',sans-serif;
   }
   .filter-btn.active{background:var(--panel); color:var(--text);}
-  .swatch{width:8px;height:8px;border-radius:2px;}
+  .swatch{width:8px;height:8px;border-radius:2px; flex-shrink:0;}
+
+  .colab-status-filter-btn{
+    flex-direction:column; align-items:flex-start; gap:3px; padding:8px 14px; white-space:nowrap;
+  }
+  .colab-status-filter-btn .cfb-top{display:flex; align-items:center; gap:6px; font-size:13px;}
+  .colab-status-filter-btn .cfb-metrics{
+    font-size:10px; font-weight:500; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;
+  }
+  .colab-status-filter-btn.active .cfb-metrics{color:var(--text-dim);}
 
   .stats{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;}
   .stat{
@@ -1296,7 +1305,10 @@
     const noDateBox = $('#ganttNoDate');
     if(!wrap) return;
 
-    const source = ganttFilter==='todos' ? ops : ops.filter(o=>o.material===ganttFilter);
+    // o cronograma mostra só o que está de fato em andamento: Backlog e Em Produção
+    const source = ops
+      .filter(o=> o.status==='separacao' || o.status==='producao')
+      .filter(o=> ganttFilter==='todos' ? true : o.material===ganttFilter);
     const withDates = [];
     const withoutDates = [];
     source.forEach(op=>{
@@ -1305,7 +1317,7 @@
     });
 
     if(withDates.length===0){
-      wrap.innerHTML = `<div style="padding:30px; text-align:center; color:var(--text-faint); font-size:13px;">Nenhuma OP com datas cadastradas ainda. Preencha "Início produção" (mínimo) em alguma OP abaixo para ela aparecer no cronograma.</div>`;
+      wrap.innerHTML = `<div style="padding:30px; text-align:center; color:var(--text-faint); font-size:13px;">Nenhuma OP em Backlog ou Em Produção com datas cadastradas ainda.<br>O cronograma mostra apenas OPs nessas duas etapas — preencha "Início produção" (mínimo) em alguma OP abaixo para ela aparecer.</div>`;
     } else {
 
     if(ganttPrintGroup === 'colaborador'){
@@ -2179,11 +2191,28 @@ ${bodyHtml}
   let colabSearchTerm = '';
   let colabStatusFilter = 'todas';
 
+  function colabFilterMetricsHtml(list){
+    const pecas = sumField(list, pecasTotal);
+    const ml = sumField(list, mLinearTotal);
+    const m2 = sumField(list, m2Total);
+    const peso = sumField(list, pesoTotal);
+    return `<span class="cfb-metrics">${fmtNum(pecas)} pçs · ${fmtNum(ml)} m · ${fmtNum(m2)} m² · ${fmtNum(peso)} kg</span>`;
+  }
+
   function buildColabStatusFilters(){
     const wrap = $('#colabStatusFilters');
     if(!wrap) return;
-    const buttons = [`<button class="filter-btn ${colabStatusFilter==='todas'?'active':''}" data-status="todas">Todas</button>`]
-      .concat(STATUSES.map(s=>`<button class="filter-btn ${colabStatusFilter===s.key?'active':''}" data-status="${s.key}"><span class="swatch" style="background:${s.dot}"></span>${s.label}</button>`));
+    const buttons = [`<button class="filter-btn colab-status-filter-btn ${colabStatusFilter==='todas'?'active':''}" data-status="todas">
+        <span class="cfb-top">Todas</span>
+        ${colabFilterMetricsHtml(ops)}
+      </button>`]
+      .concat(STATUSES.map(s=>{
+        const list = ops.filter(o=>o.status===s.key);
+        return `<button class="filter-btn colab-status-filter-btn ${colabStatusFilter===s.key?'active':''}" data-status="${s.key}">
+          <span class="cfb-top"><span class="swatch" style="background:${s.dot}"></span>${s.label}</span>
+          ${colabFilterMetricsHtml(list)}
+        </button>`;
+      }));
     wrap.innerHTML = buttons.join('');
   }
 
