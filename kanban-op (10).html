@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F4F5F7;
+    --bg:#E9EBEE;
     --panel:#FFFFFF;
     --panel-2:#F1F2F5;
     --line:#DFE2E7;
@@ -48,8 +48,8 @@
   .brand{display:flex; align-items:center; gap:14px;}
   .brand-logo{
     height:34px; width:auto; flex-shrink:0;
-    filter: drop-shadow(0 0 0 transparent);
     background:#fff; padding:6px 10px; border-radius:6px;
+    border:1px solid var(--line); box-shadow:0 1px 3px rgba(20,22,26,0.08);
   }
   .brand-divider{width:1px; height:30px; background:var(--line); flex-shrink:0;}
   .brand h1{font-family:'Archivo',sans-serif; font-size:19px; font-weight:800; margin:0; letter-spacing:0.2px;}
@@ -103,13 +103,14 @@
   .board-wrap{padding:20px 24px 60px; overflow-x:auto;}
   .board{display:grid; grid-auto-flow:column; grid-auto-columns:300px; gap:16px; align-items:start;}
   .column{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--radius);
     display:flex; flex-direction:column; max-height:calc(100vh - 240px); min-height:200px;
   }
   .column.dragover{border-color:var(--amber); box-shadow:0 0 0 1px var(--amber) inset;}
   .col-head{
+    background:var(--panel);
     padding:13px 14px 11px; border-bottom:1px solid var(--line);
-    position:sticky; top:0; background:var(--panel); border-radius:var(--radius) var(--radius) 0 0; z-index:2;
+    position:sticky; top:0; border-radius:var(--radius) var(--radius) 0 0; z-index:2;
   }
   .col-head-top{display:flex; align-items:center; justify-content:space-between;}
   .col-subtotal{margin-top:6px; font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--text-dim);}
@@ -122,10 +123,11 @@
 
   /* ---------- Card ---------- */
   .card{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:12px 13px;
+    background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 13px;
     cursor:grab; transition:.15s; position:relative; overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,22,26,0.05);
   }
-  .card:hover{border-color:#B9BEC5; transform:translateY(-1px); box-shadow:var(--shadow);}
+  .card:hover{border-color:#B9BEC5; transform:translateY(-1px); box-shadow:0 4px 10px rgba(20,22,26,0.10);}
   .card:active{cursor:grabbing;}
   .card::before{
     content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
@@ -149,7 +151,7 @@
   .card-etapa{font-size:11px; color:var(--amber); margin-top:6px; font-weight:600;}
   .card-colab{font-size:11px; color:var(--text-dim); margin-top:5px;}
   .card-figures{display:flex; gap:8px; margin-top:10px;}
-  .fig{flex:1; background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:6px 8px;}
+  .fig{flex:1; background:var(--panel-2); border:1px solid var(--line-soft); border-radius:6px; padding:6px 8px;}
   .fig-num{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; color:var(--text);}
   .fig-lbl{font-size:9.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.4px; margin-top:1px;}
   .card-meta{display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:9px; border-top:1px solid var(--line-soft);}
