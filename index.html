@@ -922,7 +922,9 @@
       </div>
       <div class="field">
         <label>Colaborador responsável</label>
-        <input type="text" id="fColaborador" placeholder="Ex: João Silva">
+        <select id="fColaborador">
+          <option value="">— Selecionar —</option>
+        </select>
       </div>
       <div class="row2">
         <div class="field">
@@ -2059,6 +2061,7 @@
 
   function openNewOpModal(){
     editingId = null;
+    refreshColaboradorSelect();
     $('#opModalTitle').textContent = 'Nova Ordem de Produção';
     $('#fCodigo').value = '';
     $('#fEtapa').value = '';
@@ -2079,6 +2082,7 @@
 
   function openEditOpModal(op){
     editingId = op.id;
+    refreshColaboradorSelect();
     $('#opModalTitle').textContent = 'Editar Ordem de Produção';
     $('#fCodigo').value = op.codigo || '';
     $('#fEtapa').value = op.etapa || '';
@@ -2553,6 +2557,7 @@ ${bodyHtml}
       if(importedAcessos){
         acessosCatalogo = importedAcessos;
         await saveAcessosCatalogo();
+        refreshColaboradorSelect();
         extraMsg += `, ${importedAcessos.length} acesso(s)`;
       }
 
@@ -2611,6 +2616,7 @@ ${bodyHtml}
       try{ await window.storage.set('config:acessos', JSON.stringify(acessosCatalogo), false); }catch(e2){}
     }
     refreshProdutoDatalist();
+    refreshColaboradorSelect();
   }
   async function saveProdutosCatalogo(){
     try{ await window.storage.set('config:produtos', JSON.stringify(produtosCatalogo), false); }
@@ -2626,6 +2632,23 @@ ${bodyHtml}
     if(!dl) return;
     const sorted = produtosCatalogo.slice().sort((a,b)=> a.localeCompare(b, 'pt-BR'));
     dl.innerHTML = sorted.map(p=> `<option value="${escapeHtml(p)}"></option>`).join('');
+  }
+
+  // Preenche o seletor "Colaborador responsável" da OP com os nomes cadastrados
+  // em Acessos (aba Cadastros) — assim a OP fica de fato vinculada a alguém
+  // registrado, em vez de um texto livre que podia vir com erro de digitação.
+  function refreshColaboradorSelect(){
+    const sel = document.getElementById('fColaborador');
+    if(!sel) return;
+    const atual = sel.value;
+    const nomes = acessosCatalogo
+      .filter(a=> a.papel === 'colaborador')
+      .map(a=> a.nome)
+      .filter((n, idx, arr)=> n && arr.indexOf(n) === idx)
+      .sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    sel.innerHTML = `<option value="">— Selecionar —</option>` +
+      nomes.map(n=> `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    if(nomes.includes(atual)) sel.value = atual;
   }
 
   function renderProdutos(){
@@ -2690,6 +2713,7 @@ ${bodyHtml}
         if(!ok) return;
         acessosCatalogo = acessosCatalogo.filter(a=> a.id !== btn.dataset.id);
         await saveAcessosCatalogo();
+        refreshColaboradorSelect();
         renderAcessos();
         toast('Acesso removido.');
       });
@@ -2704,6 +2728,7 @@ ${bodyHtml}
     if(acessosCatalogo.some(a=> a.pin === pin)){ toast('Esse PIN já está em uso por outra pessoa.'); return; }
     acessosCatalogo.push({id: uid(), nome, papel, pin});
     await saveAcessosCatalogo();
+    refreshColaboradorSelect();
     $('#acessoNomeInput').value = '';
     $('#acessoPinInput').value = '';
     renderAcessos();
