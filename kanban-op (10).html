@@ -652,10 +652,11 @@
   .prod-apont-wrap{max-height:640px; overflow-y:auto; overflow-x:auto; border:1px solid var(--line); border-radius:9px; background:var(--panel);}
   @media (max-width:900px){ .prod-layout{grid-template-columns:1fr;} }
 
-  /* ---------- Cadastros (produtos / acessos) ---------- */
+  /* ---------- Cadastros (produtos / colaboradores / acessos) ---------- */
   .cad-layout{
-    display:grid; grid-template-columns:1fr 1fr; gap:20px; padding:20px 24px 60px; align-items:start;
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; padding:20px 24px 60px; align-items:start;
   }
+  @media (max-width:1200px){ .cad-layout{grid-template-columns:1fr 1fr;} }
   @media (max-width:900px){ .cad-layout{grid-template-columns:1fr;} }
   .cad-add-row{display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap;}
   .cad-add-row input, .cad-add-row select{
@@ -861,8 +862,17 @@
       <div id="produtosListWrap" class="cad-list"></div>
     </div>
     <div class="cad-col">
+      <h3 class="prod-col-title">Colaboradores (vincular às OPs)</h3>
+      <p class="hint">Cadastro simples, só com o nome — sem PIN, sem login. Serve pra aparecer na lista de "Colaborador responsável" ao criar/editar uma OP. Não dá acesso ao sistema.</p>
+      <div class="cad-add-row">
+        <input type="text" id="colaboradorNovoInput" placeholder="Nome do colaborador">
+        <button class="btn btn-primary" id="btnAddColaboradorSimples">+ Adicionar</button>
+      </div>
+      <div id="colaboradoresListWrap" class="cad-list"></div>
+    </div>
+    <div class="cad-col">
       <h3 class="prod-col-title">Acessos (login do sistema)</h3>
-      <p class="hint">Cada pessoa entra com o próprio PIN — o sistema já sabe automaticamente se é Administrador ou Colaborador, e (no modo Colaborador) já preenche o nome sozinho nos apontamentos.</p>
+      <p class="hint">Só cadastre aqui quem realmente vai entrar e usar o sistema. Cada pessoa entra com o próprio PIN — o sistema já sabe automaticamente se é Administrador ou Colaborador, e (no modo Colaborador) já preenche o nome sozinho nos apontamentos.</p>
       <div class="cad-add-row cad-add-row-acesso">
         <input type="text" id="acessoNomeInput" placeholder="Nome da pessoa">
         <select id="acessoPapelInput">
@@ -1514,7 +1524,7 @@
     if(view==='gantt') renderGantt();
     if(view==='boletim') renderBoletim();
     if(view==='producao') renderProducao();
-    if(view==='cadastros'){ renderProdutos(); renderAcessos(); }
+    if(view==='cadastros'){ renderProdutos(); renderColaboradoresSimples(); renderAcessos(); }
   }
   $$('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> switchTab(btn.dataset.view));
@@ -2598,6 +2608,7 @@ ${bodyHtml}
 
   let produtosCatalogo = [];
   let acessosCatalogo = [];
+  let colaboradoresCatalogo = []; // cadastro simples (só nome, sem PIN) usado pra vincular à OP
   let currentUser = null; // {role, nome} da pessoa logada nesta sessão
 
   async function loadCatalogos(){
@@ -2615,6 +2626,13 @@ ${bodyHtml}
       acessosCatalogo = DEFAULT_ACESSOS.slice();
       try{ await window.storage.set('config:acessos', JSON.stringify(acessosCatalogo), false); }catch(e2){}
     }
+    try{
+      const r = await window.storage.get('config:colaboradores', false);
+      colaboradoresCatalogo = JSON.parse(r.value);
+    }catch(e){
+      colaboradoresCatalogo = [];
+      try{ await window.storage.set('config:colaboradores', JSON.stringify(colaboradoresCatalogo), false); }catch(e2){}
+    }
     refreshProdutoDatalist();
     refreshColaboradorSelect();
   }
@@ -2625,6 +2643,10 @@ ${bodyHtml}
   async function saveAcessosCatalogo(){
     try{ await window.storage.set('config:acessos', JSON.stringify(acessosCatalogo), false); }
     catch(e){ toast('Erro ao salvar acessos.'); }
+  }
+  async function saveColaboradoresCatalogo(){
+    try{ await window.storage.set('config:colaboradores', JSON.stringify(colaboradoresCatalogo), false); }
+    catch(e){ toast('Erro ao salvar colaboradores.'); }
   }
 
   function refreshProdutoDatalist(){
@@ -2641,15 +2663,47 @@ ${bodyHtml}
     const sel = document.getElementById('fColaborador');
     if(!sel) return;
     const atual = sel.value;
-    const nomes = acessosCatalogo
-      .filter(a=> a.papel === 'colaborador')
-      .map(a=> a.nome)
-      .filter((n, idx, arr)=> n && arr.indexOf(n) === idx)
-      .sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    const nomes = colaboradoresCatalogo.slice().sort((a,b)=> a.localeCompare(b, 'pt-BR'));
     sel.innerHTML = `<option value="">— Selecionar —</option>` +
       nomes.map(n=> `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
     if(nomes.includes(atual)) sel.value = atual;
   }
+
+  function renderColaboradoresSimples(){
+    const wrap = $('#colaboradoresListWrap');
+    if(!wrap) return;
+    const sorted = colaboradoresCatalogo.slice().sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    wrap.innerHTML = sorted.length ? sorted.map(n=> `
+      <div class="cad-row">
+        <span>${escapeHtml(n)}</span>
+        <button type="button" class="cad-rm" data-nome="${escapeHtml(n)}" title="Remover">&times;</button>
+      </div>`).join('') : '<div class="colab-empty">Nenhum colaborador cadastrado.</div>';
+
+    $$('.cad-rm', wrap).forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const ok = await showConfirm(`Remover "${btn.dataset.nome}" da lista de colaboradores?`, {title:'Remover colaborador', okLabel:'Remover'});
+        if(!ok) return;
+        colaboradoresCatalogo = colaboradoresCatalogo.filter(n=> n !== btn.dataset.nome);
+        await saveColaboradoresCatalogo();
+        refreshColaboradorSelect();
+        renderColaboradoresSimples();
+        toast('Colaborador removido.');
+      });
+    });
+  }
+
+  $('#btnAddColaboradorSimples').addEventListener('click', async ()=>{
+    const val = $('#colaboradorNovoInput').value.trim();
+    if(!val){ toast('Digite o nome do colaborador.'); return; }
+    if(colaboradoresCatalogo.includes(val)){ toast('Esse colaborador já está cadastrado.'); return; }
+    colaboradoresCatalogo.push(val);
+    await saveColaboradoresCatalogo();
+    $('#colaboradorNovoInput').value = '';
+    refreshColaboradorSelect();
+    renderColaboradoresSimples();
+    toast('Colaborador adicionado — ' + val);
+  });
+  $('#colaboradorNovoInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#btnAddColaboradorSimples').click(); });
 
   function renderProdutos(){
     const wrap = $('#produtosListWrap');
@@ -2781,6 +2835,7 @@ ${bodyHtml}
       $('#colabApp').style.display = 'none';
       loadAll();
       renderProdutos();
+      renderColaboradoresSimples();
       renderAcessos();
     } else {
       $('#adminApp').style.display = 'none';
