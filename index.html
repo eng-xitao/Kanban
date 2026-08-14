@@ -422,6 +422,7 @@
 
     header{ position:static; border-bottom:2px solid #111; padding:0 0 10px; backdrop-filter:none; background:#fff !important; }
     header, header *{ color:#111 !important; }
+    body.print-hide-header #adminHeader{ display:none !important; }
     header .search, header .filters, header .stat, header .btn{ background:#fff !important; border-color:#999 !important; }
     header .stat-hero{ background:#fff5ee !important; border-color:#FC4F13 !important; }
     header .stat-hero .num{ color:#FC4F13 !important; }
@@ -2475,7 +2476,9 @@ ${bodyHtml}
     renderGantt();
 
     if(RUNNING_STANDALONE){
+      document.body.classList.toggle('print-hide-header', group === 'colaborador');
       window.print();
+      document.body.classList.remove('print-hide-header');
       if(group !== 'none'){
         ganttPrintGroup = 'none';
         renderGantt();
@@ -2484,7 +2487,7 @@ ${bodyHtml}
     }
 
     fitGanttForPrint();
-    const headerHtml = cloneForPrint('#adminHeader');
+    const headerHtml = group === 'colaborador' ? '' : cloneForPrint('#adminHeader');
     const panelHtml = cloneForPrint('#viewGantt');
     resetGanttPrintScale();
     openPrintWindow(headerHtml + panelHtml);
