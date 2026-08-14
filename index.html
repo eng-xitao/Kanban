@@ -1689,7 +1689,7 @@
         const colab = op.colaborador || 'Sem colaborador';
         if(colab !== lastColab){
           if(idx > 0){
-            rows += `<div class="gantt-print-repeat pagebreak">${printHeaderRepeatHtml()}${ganttDateHeaderRowHtml()}</div>`;
+            rows += `<div class="gantt-print-repeat pagebreak">${ganttDateHeaderRowHtml()}</div>`;
           }
           rows += `<div class="gantt-colab-header">👤 ${escapeHtml(colab)}</div>`;
           rows += colabStatsHtml(colabGroups[colab]);
