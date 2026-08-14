@@ -473,29 +473,21 @@
     .gantt-side-head, .col-head h3{ color:#111 !important; }
     .gantt-day-col{ color:#555 !important; border-color:#ddd !important; }
     .gantt-day-col.weekstart{ color:#111 !important; border-color:#999 !important; }
-    .gantt-row{
-      border-color:#ddd !important; break-inside:avoid; page-break-inside:avoid;
-      flex-direction:column; align-items:stretch !important; padding:10px 0;
-    }
-    .gantt-side{ width:100% !important; border-right:none !important; padding:4px 14px !important; }
-    .gantt-side .gcode, .gantt-side .gobra, .gantt-side .gcolab{ color:#111 !important; font-size:15px !important; }
-    .gantt-side .gcode{ font-size:17px !important; }
+    .gantt-row{ border-color:#ddd !important; break-inside:avoid; page-break-inside:avoid; }
+    .gantt-side .gcode, .gantt-side .gobra, .gantt-side .gcolab{ color:#111 !important; }
     .gdq{ display:none !important; }
     .print-only.gantt-dates-print{ display:none !important; }
-    .gantt-dates-big{
-      display:flex !important; gap:10px; margin-top:10px; width:100%;
-    }
+    .gantt-dates-big{ display:flex !important; gap:4px; margin-top:4px; flex-wrap:wrap; }
     .gdb-box{
-      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      border:2px solid #999; border-radius:8px; padding:10px 6px; text-align:center;
+      display:flex; align-items:center; gap:3px; border:1px solid #999; border-radius:4px;
+      padding:2px 5px; line-height:1.1;
     }
-    .gdb-ic{ font-size:18px; line-height:1; }
-    .gdb-lbl{ font-size:11px; font-weight:800; letter-spacing:0.5px; color:#333; margin-top:2px; }
-    .gdb-val{ font-size:22px; font-weight:800; color:#111; font-family:'IBM Plex Mono',monospace; margin-top:2px; }
+    .gdb-ic{ font-size:9px; }
+    .gdb-lbl{ font-size:8px; font-weight:800; letter-spacing:0.2px; color:#333; }
+    .gdb-val{ font-size:9.5px; font-weight:700; color:#111; font-family:'IBM Plex Mono',monospace; }
     .gdb-inicio{ border-color:#6B7280; background:#F3F4F6; }
     .gdb-termino{ border-color:#0E86C4; background:#E8F4FB; }
     .gdb-entrega{ border-color:#1F9D55; background:#EAF9EF; }
-    .gantt-track{ width:100% !important; margin-top:10px; }
     .gantt-bar{ color:#fff !important; }
     .gantt-bar.mat-ferro{ background:#8b8f95 !important; }
     .gantt-bar.mat-aluminio{ background:#3f9dc4 !important; }
